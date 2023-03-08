@@ -1,0 +1,17 @@
+credentials:
+  usernames:
+    nuruddin:
+      email: nuruddindev@gmail.com
+      name: Admin
+      password: '$2b$12$yQn4CZoaKTPBlrdZLudpCuOMRuizZO0XNjKcZJ8/HoSZs/yQa44bS' # To be replaced with hashed password
+    hari:
+      email: picstare@gmail.com
+      name: Hari Fitrianto
+      password: '$2b$12$jMwkSZYQ6cOvzcL6kNigQ.LoAlfJ3kB12x.720SMmP2IubeHiDR3O' # To be replaced with hashed password
+cookie:
+  expiry_days: 30
+  key: picalogin # Must be string
+  name: picalogs
+preauthorized:
+  emails:
+  - picstare@gmail.com

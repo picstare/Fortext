@@ -5,7 +5,7 @@ age_intercept = 23.2188604687
 
 def load_age_lexica(file_name="emnlp14age.csv"):
     age_lexica={}
-    with open(file_name) as infile:
+    with open(file_name, mode='r') as infile:
         reader=csv.DictReader(infile)
         for data in reader:
             weight = float(data['weight'])
