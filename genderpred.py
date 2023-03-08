@@ -1,5 +1,5 @@
 
-import twitter.tokenisasi as tkn
+import tokenisasi as tkn
 import csv
 from math import sin
 

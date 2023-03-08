@@ -18,7 +18,7 @@ import streamlit.components.v1 as components
 # from streamlit_tags import st_tags
 import altair as alt
 import seaborn as sns
-from twitter.tokenisasi import Tokenizer
+from tokenisasi import Tokenizer
 import functools
 from genderpred import GndrPrdct
 from math import sin

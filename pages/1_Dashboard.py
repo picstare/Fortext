@@ -19,7 +19,7 @@ import streamlit.components.v1 as components
 import altair as alt
 from altair import datum
 import seaborn as sns
-from twitter.tokenisasi import Tokenizer
+from tokenisasi import Tokenizer
 import functools
 from genderpred import GndrPrdct
 import sys
@@ -343,7 +343,7 @@ with cen1:
     ).transform_window(
         rank='rank(DC)',
         sort=[alt.SortField( 'DC', order= 'descending')]
-    ).transform_filter('datum.rank < 10')
+    ).transform_filter((alt.datum.rank < 10))
 
     st.altair_chart(top10cent, use_container_width=True)
     with st.expander("See Data"):
@@ -359,7 +359,7 @@ with cen2:
     ).transform_window(
         rank='rank(EC)',
         sort=[alt.SortField( 'EC', order= 'descending')]
-    ).transform_filter('datum.rank < 10')
+    ).transform_filter((alt.datum.rank < 10))
 
     st.altair_chart(top10eigen, use_container_width=True)
     with st.expander("See Data"):
@@ -393,7 +393,7 @@ with cen4:
     ).transform_window(
         rank='rank(CC)',
         sort=[alt.SortField( 'CC', order= 'descending')]
-    ).transform_filter('datum.rank <= 10')
+    ).transform_filter((alt.datum.rank <= 10))
 
     st.altair_chart(top10close, use_container_width=True)
     with st.expander("See Data"):
@@ -418,7 +418,7 @@ with cinf1:
         ).transform_window(
             rank='rank(Followers)',
             sort=[alt.SortField( 'Followers', order= 'descending')]
-        ).transform_filter('datum.rank <= 10')
+        ).transform_filter((alt.datum.rank <= 10))
 
     st.altair_chart(top10follower, use_container_width=True)
     with st.expander("See Data"):
@@ -433,7 +433,7 @@ with cinf2:
         ).transform_window(
             rank='rank(Listed)',
             sort=[alt.SortField( 'Listed', order= 'descending')]
-        ).transform_filter('datum.rank <= 10')
+        ).transform_filter((alt.datum.rank <= 10))
 
     st.altair_chart(top10listed, use_container_width=True)
     with st.expander("See Data"):
