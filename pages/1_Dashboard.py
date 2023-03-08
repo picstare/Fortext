@@ -22,6 +22,7 @@ import seaborn as sns
 from twitter.tokenisasi import Tokenizer
 import functools
 from genderpred import GndrPrdct
+import sys
 # from math import sin
 # from nltk.util import ngrams
 import string

@@ -22,6 +22,7 @@ from twitter.tokenisasi import Tokenizer
 import functools
 from genderpred import GndrPrdct
 from math import sin
+import sys
 import string
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.decomposition import LatentDirichletAllocation as LDA
