@@ -22,6 +22,7 @@ import seaborn as sns
 from tokenisasi import Tokenizer
 import functools
 from genderpred import GndrPrdct
+import math
 import sys
 # from math import sin
 # from nltk.util import ngrams
@@ -39,9 +40,13 @@ from collections import OrderedDict
 from networkx.algorithms import bipartite
 from networkx import NetworkXError
 # from networkx.algorithms.community import greedy_modularity_communities as nxcom
+import networkx.algorithms.connectivity as nxcon
 from networkx.utils import groups
-# from networkx.algorithms.community.asyn_fluid import asyn_fluidc as af
-# from networkx.algorithms.components import weakly_connected_components
+from networkx.algorithms.community.asyn_fluid import asyn_fluidc as af
+from networkx.algorithms.components import weakly_connected_components
+from networkx.algorithms import community
+# from networkx.algorithms.community.centrality import girvan_newman
+from networkx.algorithms.community import k_clique_communities
 import sys
 import pickle
 import pyLDAvis
@@ -182,7 +187,7 @@ with st.container():
         st.write(tweetcount1, 'Tweets')
         
     with col3:
-        st.write (hashtagcount1, 'Hashtags')
+        st.write (hashtagcount1, 'Splithast')
         
     
 
@@ -220,7 +225,7 @@ with st.container():
 ####################################### NETWORKX ####################
 st.subheader("Graph Network")
 
-pyvis_network=net.Network('800px', '100%', directed=True, neighborhood_highlight=True, select_menu=True,filter_menu=True, cdn_resources='remote')
+pyvis_network=net.Network('800px', '100%', neighborhood_highlight=True, select_menu=True,filter_menu=True, cdn_resources='remote')
 
 pyvis_network.show_buttons('physics')
 
@@ -232,10 +237,20 @@ for r in tweets_df1.iterrows():
     for user in r[1]['Splitmentions']:
         G.add_edge(r[1]['Username'], user)
 
+
+H=nx.DiGraph()
+for r in tweets_df1.iterrows():
+    for user in r[1]['Splithast']:
+        H.add_edge(r[1]['Username'], user, weight=1, color='green', label='#')
+
 if G.has_node(""):
     G.remove_node("")
+if H.has_node(""):
+    H.remove_node("")
+
 
 pyvis_network.from_nx(G)
+pyvis_network.from_nx(H)
 
 
 # communities = weakly_connected_components(G)
@@ -250,13 +265,40 @@ pyvis_network.from_nx(G)
 #     if node in node_groups[0]:
 #         color_map.append('orange')
 #     else: 
-#         color_map.append('red') 
-        
+#         color_map.append('red')
+# figw, ax = plt.subplots()
+# nx.draw(G, node_color=color_map, node_size=100, font_size=5, linewidths=1, with_labels=True)
+# plt.show()
+# st.pyplot(figw)
 
-# color=color_map
 
-# nx.set_node_attributes(G, color, "color")
-# pyvis_network.add_node(node, label=node, color="color")
+mden=nx.density(G)
+st.write("density:",mden)
+mcut=nx.average_node_connectivity(G)
+st.write ('node connnectivity', mcut)
+def entropy(x):
+# Normalize
+    total = sum(x)
+    x = [xi / total for xi in x]
+    H = sum([-xi * math.log2(xi) for xi in x])
+    return H
+meen=entropy(nx.eigenvector_centrality(G).values())
+st.write ('Network Entropy:', meen)
+
+mavc=nx.average_clustering(G)
+st.write("Average Clustering", mavc)
+
+def gini(x):
+    x = [xi for xi in x]
+    n = len(x)
+    gini_num = sum([sum([abs(x_i - x_j) for x_j in x]) for x_i in x])
+    gini_den = 2.0 * n * sum(x)
+    return gini_num / gini_den
+
+megin=gini(nx.eigenvector_centrality(G).values())
+st.write ('Gini:', megin)
+
+
 
 neighbor_map= pyvis_network.get_adj_list()
 for node in pyvis_network.nodes:
@@ -282,8 +324,6 @@ closeness=nx.closeness_centrality(G)
 isinstance(closeness, dict)
 nx.set_node_attributes(G, closeness, "closeness")
             
-if G.has_node(""):
-    G.remove_node("")
 
 # largest_cc = max(nx.connected_components(G), key=len)
 # print(largest_cc)
@@ -299,9 +339,11 @@ if G.has_node(""):
 # # list(nx.bridges(G))[:]
 # bicomponents_edges = list(nx.biconnected_component_edges(G))
 # # print(nx.number_of_selfloops(G))
-# # print (nx.density(G))
 # # G=nx.path_graph(5)
 # # print(nx.average_shortest_path_length(G)
+
+bridges= list(nx.bridges(G))
+print("jembatan", bridges)
 
 centrality=(pd.DataFrame.from_dict(nx.degree_centrality(G), orient='index', columns=['DC'])
     .rename_axis('Name')
@@ -438,6 +480,170 @@ with cinf2:
     st.altair_chart(top10listed, use_container_width=True)
     with st.expander("See Data"):
             st.dataframe(listed)
+
+
+##########################################################
+colbridg, colcomm=st.columns([1,1], gap='small')
+with colbridg:
+    st.subheader('Bridges')
+    pos= nx.spring_layout(G)
+    bridges = []
+    for bridge in nx.bridges(G):
+        bridges.append(bridge)
+
+    non_bridges = G.edges - bridges
+    print('we have %s bridges in the graph' % len(bridges))
+    # display(bridges)
+    figb= plt.figure(figsize=(5, 5))
+    plt.axis('off')
+    
+    # nx.draw(G, node_color='grey', alpha=0.2, node_size=100, font_size=5, linewidths=1, with_labels=True)
+    nx.draw_networkx_labels(G,pos, font_size=4,font_family='sans-serif')
+    nx.draw_networkx_edges(G, pos, edgelist=bridges, style='solid', width=1.5, edge_color='red')
+    nx.draw_networkx_edges(G, pos, edgelist=non_bridges, style='solid', width=0.7, edge_color='black')
+    
+    nx.draw_networkx_nodes(G, pos, node_size=200, alpha=0.2)
+    # display('the red edges are the bridges')
+
+   
+  
+    st.pyplot(figb)
+import networkx.algorithms.community as nx_comm
+with colcomm:
+    st.subheader('Modularity-based Communities')
+    
+
+    def display_communities(communities):
+        print("we found %s communities" % len(communities))
+        # colors = ['red','green','blue','black','orange', 'yellow', 'purple']
+        counter = 0
+        for community in communities:
+            counter += 1
+            print("community_%s is:" % counter)
+            print(', '.join(community), '\n')
+            colors = ['red','green','blue','black','orange', 'yellow', 'purple']
+            nx.draw_networkx_labels(G,pos, font_size=4,font_family='sans-serif')
+            nx.draw_networkx_nodes(G, pos, nodelist=community, node_color=colors.pop(), alpha=0.5)
+
+        nx.draw_networkx_edges(G, pos, style='dashed', width=1)
+    
+    pos= nx.spring_layout(G)
+    figcomm= plt.figure(figsize=(5, 5))
+    plt.axis('off')
+    communities = nx.algorithms.community.modularity_max.greedy_modularity_communities(G)
+    display_communities(communities)
+
+    st.pyplot(figcomm)
+
+
+st.subheader('Clique Communities')
+pos= nx.spring_layout(G)
+figcliq= plt.figure(figsize=(5, 2))
+plt.axis('off')
+
+cliques = list(nx.find_cliques(G))
+
+max_clique = max(cliques, key=len)
+# Visualize maximum clique
+node_color = [(0.5, 0.5, 0.5) for v in G.nodes()]
+for i, v in enumerate(G.nodes()):
+    for v in max_clique:
+        node_color[i] = (0.5, 0.5, 0.9)
+
+# nx.draw_networkx(G, pos, node_color=node_color)
+nx.draw_networkx_labels(G,pos, font_size=4,font_family='sans-serif')
+nx.draw_networkx_nodes(G, pos, node_size=100, node_color=node_color, alpha=0.5)
+
+st.pyplot(figcliq)
+# with colfluid:
+#     st.subheader('Fluid Communities')
+#     fluid_communities = []
+#     for community in nx.algorithms.community.asyn_fluid.asyn_fluidc(G, 6):
+#         fluid_communities.append(community)
+
+#     partition_quality = nx.algorithms.community.quality.partition_quality(G, fluid_communities)
+    
+#     nx.draw_networkx_labels(G,pos, font_size=4,font_family='sans-serif')
+#     nx.draw_networkx_nodes(G, pos, nodelist=fluid_communities, node_size=200, node_color=node_color, alpha=0.2)
+
+
+
+# node_color = [(0.5, 0.5, 0.5) for node in G.nodes]
+# for i, node in enumerate(G.nodes()):
+#     if node in max_clique:
+#         node_color[i] = (0.5, 0.5, 0.9)
+
+# figw= plt.figure(figsize=(10, 10))
+# plt.axis('off')
+# nx.draw_networkx(G, node_color=node_color, pos=nx.spring_layout)
+# # nx.draw(G, node_color=color_map, node_size=100, font_size=5, linewidths=1, with_labels=True)
+# plt.show()
+# st.pyplot(figw)
+
+
+# z=nx.Graph()
+# N_nodes=z.number_of_nodes()
+
+# for r in tweets_df1.iterrows():
+#     z.add_node(r[1]['Username'], gender=r[1]['Gender'], color=r[1]['Colorgend'], device=r[1]['Device'], location=r[1]["Location"], font='20px arial black' )
+#     for user in r[1]['Splitmentions']:
+#         z.add_edge(r[1]['Username'], user)
+
+# #Computing centrality
+# degCent = nx.degree_centrality(z)
+
+# #Descending order sorting centrality
+# degCent_sorted=dict(sorted(degCent.items(), key=lambda item: item[1],reverse=True))
+
+# #Computing betweeness
+# betCent = nx.betweenness_centrality(z, normalized=True, endpoints=True)
+
+# #Descending order sorting betweeness
+# betCent_sorted=dict(sorted(betCent.items(), key=lambda item: item[1],reverse=True))
+
+# #Color for regular nodes
+# color_list=N_nodes*['lightsteelblue']
+
+# #Getting indices on top 10 nodes for each measure
+# N_top=10
+# colors_top_10=['tab:orange','tab:blue','tab:green','lightsteelblue']
+# keys_deg_top=list(degCent_sorted)[0:N_top]
+# keys_bet_top=list(betCent_sorted)[0:N_top]
+
+# #Computing centrality and betweeness intersection
+# inter_list=list(set(keys_deg_top) & set(keys_bet_top))
+
+
+# #Setting up color for nodes
+# for i in inter_list:
+#   color_list[i]=colors_top_10[2]
+
+# for i in range(N_top):
+#   if keys_deg_top not in inter_list:
+#     color_list[i]=colors_top_10[0]
+#   if keys_bet_top not in inter_list:
+#     color_list[i]=colors_top_10[1]
+
+# #Draw graph
+# figw= plt.figure(figsize=(10, 10))
+# plt.axis('off')
+# nx.draw(z,pos=nx.circular_layout,with_labels=True,node_color=color_list)
+
+# #Setting up legend
+# labels=['Top 10 deg cent','Top 10 bet cent','Top 10 deg and bet cent','no top 10']
+# for i in range(len(labels)):
+#   plt.scatter([],[],label=labels[i],color=colors_top_10[i])
+# plt.legend(loc='center')
+# plt.show()
+# st.pyplot(figw)
+
+
+
+
+
+
+
+
 
 ######################### GAMBAR TOP TEN NETWORK  ###############
 # N_nodes=G.number_of_nodes()
@@ -592,7 +798,7 @@ with vcol1:
     toptenhash=dresnn.nlargest(n=10, columns=['Freq'])
     hashtag_chart=alt.Chart(toptenhash).mark_bar().encode(
         x=alt.X('Freq:Q', title='Frequency'),
-        y=alt.Y("Tags:N", title='Hashtags', sort="-x")
+        y=alt.Y("Tags:N", title='Splithast', sort="-x")
     ).properties(width= 700, height=700)
 
     st.altair_chart(hashtag_chart, use_container_width=False)

@@ -37,7 +37,6 @@ import agepred
 from collections import OrderedDict
 from networkx.algorithms import bipartite
 from networkx import NetworkXError
-from networkx.algorithms.community import greedy_modularity_communities as nxcom
 import sys
 import pickle
 import gensim
@@ -159,10 +158,10 @@ if choose == 'Keywords':
                         if i>=maxTweets: #number of tweets you want to scrape
                             break
                         attributes_container.append([tweet.date, tweet.id, tweet.rawContent, tweet.user.username, tweet.user.profileImageUrl, tweet.user.followersCount, tweet.user.listedCount, 
-                                                     tweet.user.location, tweet.sourceLabel, tweet.lang, tweet.hashtags, tweet.replyCount,tweet.retweetCount,tweet.likeCount,tweet.quoteCount, tweet.media ])
+                                                     tweet.user.location, tweet.sourceLabel, tweet.lang, tweet.replyCount,tweet.retweetCount,tweet.likeCount,tweet.quoteCount, tweet.media ])
 
             tweets_df = pd.DataFrame(attributes_container, columns=['DateTime', 'TweetId', 'Text', 'Username','ProfileImageUrl', 'Followers','Listed', 'Location', 'Device', 'Language',
-                                'Hashtags','ReplyCount','RetweetCount','LikeCount','QuoteCount', 'Media'])
+                                'ReplyCount','RetweetCount','LikeCount','QuoteCount', 'Media'])
             
             st.write(q)
             
@@ -179,6 +178,13 @@ if choose == 'Keywords':
             def find_mention(text):
                 mentname=re.findall(r'(?<![@\w])@(\w{1,25})',text)
                 return ",".join(mentname)
+            
+            def find_hashtag(text):
+                mentname=re.findall(r'(?<=#)\w+',text)
+                return ",".join(mentname)
+            tweets_df['Hashtags'] = tweets_df['Text'].apply(lambda x: find_hashtag(x))
+            tweets_df['Splithast'] = tweets_df['Hashtags'].apply(lambda x: x.split(','))
+
             
             tweets_df['Mentions'] = tweets_df['Text'].apply(lambda x: find_mention(x))
             tweets_df['Splitmentions'] = tweets_df['Mentions'].apply(lambda x: x.split(','))
@@ -351,7 +357,8 @@ if choose == 'Keywords':
             # tweets_df.drop('DateTime',axis=1,inplace=True)
             tweets_df.drop('Retweets',axis=1,inplace=True)
             tweets_df.drop('Mentions',axis=1,inplace=True)
-            # tweets_df.drop('Hashtags',axis=1,inplace=True)
+            # tweets_df.drop('Mentions',axis=1,inplace=True)
+            tweets_df.drop('Hashtags',axis=1,inplace=True)
         
 
 
