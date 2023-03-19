@@ -1,5 +1,6 @@
 import re
 import html.entities
+import streamlit as st
 
 def lmap(f,xs):
   return list(map(f,xs))

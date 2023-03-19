@@ -14,8 +14,7 @@ pyvis==0.3.2
 PyYAML==6.0
 scipy==1.10.1
 seaborn==0.12.2
-snscrape==0.6.0.20230303
-streamlit==1.19.0
+snscrape==0.6.1.20230314
 streamlit_authenticator==0.2.1
 streamlit_extras==0.2.6
 wordcloud==1.8.2.2

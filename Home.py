@@ -5,7 +5,7 @@ import streamlit_authenticator as stauth
 import pickle
 from pathlib import Path
 import yaml
-from yaml import SafeLoader
+from yaml.loader import SafeLoader
 from streamlit_authenticator import Authenticate, authenticate
 from streamlit_extras.switch_page_button import switch_page
 
@@ -24,14 +24,6 @@ with a:
 with b:
     st.title("PICANALITIKA")
 
-
-
-
-
-# selected = option_menu(None, ["Home", "Upload", "Tasks", 'Settings'], 
-#     icons=['house', 'cloud-upload', "list-task", 'gear'], 
-#     menu_icon="cast", default_index=0, orientation="horizontal")
-# selected
 
 import base64
 def add_bg_from_local(image_file):
@@ -53,7 +45,7 @@ add_bg_from_local('img/data.jpg')
 
 hide_st_style = """
             <style>
-            #MainMenu {visibility: hidden;}
+            
             footer {visibility: hidden;}
             header {visibility: hidden;}
             
@@ -91,23 +83,19 @@ with col2:
 
 
     if authentication_status:
+        # authenticator.logout('Logout', 'sidebar')
         switch_page('Dashboard')
-        # authenticator.logout('Logout', 'main')
-        # st.write(f'Welcome *{name}*')
-        # st.title('Some content')
     elif authentication_status is False:
         st.error('Username/password is incorrect')
     # elif authentication_status is None:
-        # st.warning('Please enter your username and password')
-
+    #     st.warning('Please enter your username and password')
 
     # if st.session_state["authentication_status"]:
+    # # authenticator.logout('Logout', 'sidebar')
     #     switch_page('Dashboard')
-    #     # placeholder1.add_bg_from_local('img/data.jpg')
-    #     authenticator.logout('Logout', 'sidebar')
-    #     st.write(f'Welcome *{st.session_state["name"]}*')
-    #     st.title('Summary')
-    # elif st.session_state["authentication_status"] == False:
+    #     # st.write(f'Welcome *{st.session_state["name"]}*')
+    # elif st.session_state["authentication_status"] is False:
     #     st.error('Username/password is incorrect')
-    # # elif st.session_state["authentication_status"] == None:
-    # #     st.warning('Please enter your username and password')
+    #     elif st.session_state["authentication_status"] is None:
+    # st.warning('Please enter your username and password')
+    # # switch_page('Home')
