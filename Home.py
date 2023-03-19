@@ -47,8 +47,13 @@ hide_st_style = """
             #MainMenu {visibility: hidden;}
             footer {visibility: hidden;}
             header {visibility: hidden;}
-            .viewerBadge_link__1S137 {visibility: hidden;} 
-            
+            viewerBadge_link__1S137 {visibility: hidden;} 
+            viewerBadge_link__ {visibility: hidden;}
+            viewerBadge_link {visibility: hidden;}
+            .viewerBadge_link__ {visibility: hidden;}
+            .viewerBadge_link__1S137 {visibility: hidden;}
+            .viewerBadge_link {visibility: hidden;}
+
             </style>
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
