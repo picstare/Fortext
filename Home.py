@@ -42,10 +42,9 @@ def add_bg_from_local(image_file):
     )
 add_bg_from_local('img/data.jpg') 
 
-
 hide_st_style = """
             <style>
-            
+            #MainMenu {visibility: hidden;}
             footer {visibility: hidden;}
             header {visibility: hidden;}
             
