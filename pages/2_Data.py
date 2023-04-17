@@ -398,7 +398,7 @@ with st.container():
             # tweets_df.to_csv(f"{filename}",index=True)
             # tweets_df.to_pickle('data/dummy.pkl', compression='infer', protocol=4)
 
-    
+datapath = "data"   
             
 with outer_cols_a:
     if tweets_df.empty:
@@ -406,6 +406,6 @@ with outer_cols_a:
     else:
         tweets_df.info()
         st.dataframe(tweets_df)
-        tweets_df.to_pickle(f'{filename}', compression='infer', protocol=4)
+        tweets_df.to_pickle(f'{datapath}/{filename}', compression='infer', protocol=4)
 
     
