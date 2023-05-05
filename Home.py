@@ -114,5 +114,5 @@ def check_password():
 
 
 if check_password():
-    switch_page('dashboard')
+    switch_page('twitter')
 # st.title('Home')
