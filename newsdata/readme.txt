@@ -1,0 +1,1 @@
+tempat data news
