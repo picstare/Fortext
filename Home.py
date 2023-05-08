@@ -1,19 +1,9 @@
 import streamlit as st
 import os
-
-# from streamlit_option_menu import option_menu
 import sys
-import streamlit_authenticator as stauth
-import pickle
 from pathlib import Path
-import yaml
-from yaml.loader import SafeLoader
-
-# from streamlit_authenticator import Authenticate, authenticate
 from streamlit_extras.switch_page_button import switch_page
-
 from django.core.wsgi import get_wsgi_application
-# from django.contrib.auth import authenticate
 
 
 st.set_page_config(
@@ -69,50 +59,55 @@ def local_css(file_name):
 
 local_css("css/pica.css")
 
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 application = get_wsgi_application()
 
 from django.contrib.auth import authenticate
+colcov,collog=st.columns([4, 2])
+with colcov:
+    st.write("")
 
-def check_password():
-    """Returns `True` if the user had a correct password."""
+with collog:
+    def check_password():
+        """Returns `True` if the user had a correct password."""
 
-    def password_entered():
-        """Checks whether a password entered by the user is correct."""
-        user = authenticate(
-            username=st.session_state["username"], password=st.session_state["password"]
-        )
+        def password_entered():
+            """Checks whether a password entered by the user is correct."""
+            user = authenticate(
+                username=st.session_state["username"], password=st.session_state["password"]
+            )
 
-        if user is not None:
-            st.session_state["password_correct"] = True
-            del st.session_state["password"]  # don't store username + password
-            del st.session_state["username"]
-        # else:
-        #     st.session_state["password_correct"] = False
+            if user is not None:
+                st.session_state["password_correct"] = True
+                del st.session_state["password"]  # don't store username + password
+                del st.session_state["username"]
+            # else:
+            #     st.session_state["password_correct"] = False
 
-    if "password_correct" not in st.session_state:
-        # First run, show inputs for username + password.
-        st.text_input("Username", on_change=password_entered, key="username")
-        st.text_input(
-            "Password", type="password", on_change=password_entered, key="password"
-        )
-        return False
-    elif not st.session_state["password_correct"]:
-        # Password not correct, show input + error.
-        st.text_input("Username", on_change=password_entered, key="username")
-        st.text_input(
-            "Password", type="password", on_change=password_entered, key="password"
-        )
-        st.error("😕 User not known or password incorrect")
-        return False
-    else:
-        # Password correct.
-        return True
-    
-    
+        if "password_correct" not in st.session_state:
+            # First run, show inputs for username + password.
+            st.text_input("Username", on_change=password_entered, key="username")
+            st.text_input(
+                "Password", type="password", on_change=password_entered, key="password"
+            )
+            return False
+        elif not st.session_state["password_correct"]:
+            # Password not correct, show input + error.
+            st.text_input("Username", on_change=password_entered, key="username")
+            st.text_input(
+                "Password", type="password", on_change=password_entered, key="password"
+            )
+            st.error("😕 User not known or password incorrect")
+            return False
+        else:
+            # Password correct.
+            return True
+        
+        
 
 
 
-if check_password():
-    switch_page('twitter')
+    if check_password():
+        switch_page('twitter')
 # st.title('Home')
