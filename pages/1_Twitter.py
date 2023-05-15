@@ -81,8 +81,8 @@ from streamlit_extras.switch_page_button import switch_page
 
 import matplotlib.colors
 
-# sys.stdin.reconfigure(encoding='utf-8')
-# sys.stdout.reconfigure(encoding='utf-8')
+sys.stdin.reconfigure(encoding='utf-8')
+sys.stdout.reconfigure(encoding='utf-8')
 
 nltk.download("stopwords")
 nltk.download("wordnet")
