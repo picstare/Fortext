@@ -1,5 +1,5 @@
 import streamlit as st
-from newsapi import NewsApiClient
+newsapi.newsapi_client import NewsApiClient
 import json
 import pandas as pd
 import numpy as np
