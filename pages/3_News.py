@@ -1,5 +1,5 @@
 import streamlit as st
-from newsapi.newsapi_client import NewsApiClient
+from newsapi import NewsApiClient
 import json
 import pandas as pd
 import numpy as np
@@ -14,6 +14,7 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from googletrans import Translator, constants
 from gensim.models.ldamodel import LdaModel
 import gensim.corpora as corpora
+import folium
 import plotly.graph_objs as go
 import altair as alt
 from altair import datum
@@ -278,6 +279,9 @@ with outer_cols_a:
     articledf['person']=articledf['person'].apply(lambda x: "'" + "', '".join(x) + "'")
     articledf['location']=articledf['location'].apply(lambda x: "'" + "', '".join(x) + "'")
     # st.write(articledf.dtypes)
+
+
+    
     edited_df=st.experimental_data_editor(articledf )
    
    

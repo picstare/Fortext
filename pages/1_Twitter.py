@@ -1364,7 +1364,7 @@ with tab2:
                 return ",".join(rtweet)
 
             tweets_df["Retweets"] = tweets_df["Text"].apply(lambda x: find_ret(x))
-            
+            tweets_df["Splitretweet"] = tweets_df["Retweets"].apply(lambda x: x.split(","))
 
             def find_mention(text):
                 mentname = re.findall(r"(?<![@\w])@(\w{1,25})", text)
