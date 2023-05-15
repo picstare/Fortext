@@ -14,7 +14,6 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from googletrans import Translator, constants
 from gensim.models.ldamodel import LdaModel
 import gensim.corpora as corpora
-import folium
 import plotly.graph_objs as go
 import altair as alt
 from altair import datum
