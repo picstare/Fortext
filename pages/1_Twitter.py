@@ -18,6 +18,23 @@ from json import JSONEncoder
 import PIL
 import PIL.Image
 import time
+import nltk
+nltk.download('stopwords')
+nltk.download('punkt')
+import gensim
+import pyLDAvis.gensim_models as gensimvis
+import pyLDAvis
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer
+import pyLDAvis.gensim
+
+
+
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
 
 
 st.set_page_config(page_title="Forteks | Twitter Analysis", layout="wide")
@@ -533,9 +550,15 @@ with tab2:
 
         return closeness_centrality
     
-        # Calculate closeness centrality
+      # Calculate closeness centrality
     closeness_centrality = calculate_closeness_centrality(selected_G)
 
+        # Sort the centrality values in descending order
+    sorted_centrality = sorted(closeness_centrality.items(), key=lambda x: x[1], reverse=True)
+
+        # Extract the top nodes and their centrality values
+    top_nodes = [node for node, centrality in sorted_centrality[:10]]
+    top_centrality = [centrality for node, centrality in sorted_centrality[:10]]
         # Function to visualize the closeness centrality network using Pyvis
     def visualize_closeness_centrality_network(G, centrality_values):
         nt = net(height='750px', width='100%', bgcolor='#ffffff', font_color='#333333', directed=True)
@@ -558,6 +581,17 @@ with tab2:
             html_string = f.read()
             st.components.v1.html(html_string, height=960, scrolling=True)
 
+        plt.figure(figsize=(10, 6))
+        plt.bar(top_nodes, top_centrality)
+        plt.xlabel('Nodes')
+        plt.ylabel('Closeness Centrality')
+        plt.title('Top Actors Based on Closeness Centrality')
+        plt.xticks(rotation=90)
+        plt.tight_layout()
+
+        # Display the chart in Streamlit
+        st.pyplot(plt)
+
 
 
 
@@ -575,7 +609,211 @@ with tab2:
     with colviz4:
         visualize_closeness_centrality_network(selected_G, closeness_centrality)
     
+#################################################################################
+######################TOPIC MODELING#############################################
+
+
+
+    # Function to load and preprocess the text data
+    def load_and_preprocess_data(file_path):
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+        
+        # Preprocess the text (e.g., lowercase, tokenization, stopwords removal, etc.)
+        preprocessed_text_data = []
+        stop_words = set(stopwords.words('indonesian'))
+        lemmatizer = WordNetLemmatizer()
+
+        for tweet_data in data['data']:
+            text = tweet_data['Text']
+
+            # Convert text to lowercase
+            text = text.lower()
+
+            # Tokenize the text
+            tokens = word_tokenize(text)
+
+            # Remove stopwords and perform lemmatization
+            processed_tokens = [lemmatizer.lemmatize(token) for token in tokens if token not in stop_words]
+
+            # Append the processed tokens to the preprocessed text data
+            preprocessed_text_data.append(processed_tokens)
+        
+        # Return the preprocessed text data
+        return preprocessed_text_data
+
+    # Function to perform topic modeling
+    def perform_topic_modeling(text_data):
+        # Create a dictionary from the text data
+        dictionary = gensim.corpora.Dictionary(text_data)
+        
+        # Create a corpus (Bag of Words representation)
+        corpus = [dictionary.doc2bow(text) for text in text_data]
+        
+        # Perform topic modeling using LDA
+        lda_model = gensim.models.LdaModel(corpus=corpus, id2word=dictionary, num_topics=10, passes=10)
+        
+        # Return the LDA model
+        return lda_model
+
     
+
+    # Main Streamlit app
+    st.title("Topic Modeling with pyLDAvis")
+
+    # Folder path containing the JSON files
+    folder_path = "twitkeys"
+
+    # Get the list of JSON files in the folder
+    file_list = [file_name for file_name in os.listdir(folder_path) if file_name.endswith('.json')]
+
+    # Select files
+    selected_files = st.multiselect("Select Files", file_list, default=file_list[:1])
+
+
+    # List to store preprocessed text data from selected files
+    preprocessed_text_data = []
+
+    # Iterate over the selected files
+    for file_name in selected_files:
+        file_path = os.path.join(folder_path, file_name)
+
+        # Load and preprocess the text data from the file
+        text_data = load_and_preprocess_data(file_path)
+
+        # Append the preprocessed text data to the list
+        preprocessed_text_data.extend(text_data)
+
+
+        # Perform topic modeling on the preprocessed text data
+        lda_model = perform_topic_modeling(preprocessed_text_data)
+
+        dictionary = gensim.corpora.Dictionary(preprocessed_text_data)
+        corpus = [dictionary.doc2bow(text) for text in preprocessed_text_data]
+
+        # Generate the pyLDAvis visualization
+        lda_display = pyLDAvis.gensim.prepare(lda_model, corpus, dictionary, sort_topics=False)
+
+        # Save the HTML file
+        pyLDAvis.save_html(lda_display, "lda.html")
+
+        # Read the HTML file
+        with open("lda.html", "r") as f:
+            html_string = f.read()
+
+        # Display the HTML file in Streamlit
+        st.components.v1.html(html_string, height=800, width=1500, scrolling=False)
+
+
+#################################################################
+
+
+
+    from nltk.sentiment import SentimentIntensityAnalyzer
+    import numpy as np
+
+    from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
+
+
+    # Function to load and preprocess the text data
+    def load_and_preprocess_data(file_path):
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+
+        # Preprocess the text (e.g., lowercase, tokenization, stopwords removal, etc.)
+        preprocessed_text_data = []
+        stop_words = set(stopwords.words('indonesian'))
+        stemmer = StemmerFactory().create_stemmer()
+
+        for tweet_data in data['data']:
+            text = tweet_data['Text']
+
+            # Convert text to lowercase
+            text = text.lower()
+
+            # Tokenize the text
+            tokens = word_tokenize(text)
+
+            # Remove stopwords and perform stemming
+            processed_tokens = [stemmer.stem(token) for token in tokens if token not in stop_words]
+
+            # Append the processed tokens to the preprocessed text data
+            preprocessed_text_data.append(processed_tokens)
+
+        # Return the preprocessed text data
+        return preprocessed_text_data
+
+    # Function to perform sentiment analysis using VADER
+    def perform_sentiment_analysis(text_data):
+        # Initialize the VADER sentiment intensity analyzer
+        sia = SentimentIntensityAnalyzer()
+
+        # Perform sentiment analysis on each text
+        sentiment_scores = []
+        for text in text_data:
+            sentiment_score = sia.polarity_scores(' '.join(text))
+            sentiment_scores.append(sentiment_score)
+
+        # Convert the sentiment scores to a DataFrame
+        df_sentiment = pd.DataFrame(sentiment_scores)
+
+        # Return the DataFrame with sentiment scores
+        return df_sentiment
+
+    # Main Streamlit app
+    st.title("Sentiment Analysis with VADER for Bahasa Indonesia")
+
+    # Folder path containing the JSON files
+    folder_path = "twitkeys"
+
+    # Get the list of JSON files in the folder
+    file_list = [file_name for file_name in os.listdir(folder_path) if file_name.endswith('.json')]
+
+    # Select files
+    selected_files = st.multiselect("Select Files", file_list, default=file_list[:1], key="file_selector")
+
+    # Iterate over the selected files
+    for file_name in selected_files:
+        # List to store preprocessed text data from the current file
+        preprocessed_text_data = []
+
+        # File path of the current file
+        file_path = os.path.join(folder_path, file_name)
+
+        # Load and preprocess the text data from the file
+        text_data = load_and_preprocess_data(file_path)
+
+        # Append the preprocessed text data to the list
+        preprocessed_text_data.extend(text_data)
+
+        # Perform sentiment analysis on the preprocessed text data
+        df_sentiment = perform_sentiment_analysis(preprocessed_text_data)
+
+        # Display the sentiment analysis results
+        st.subheader(f"Sentiment Analysis: {file_name}")
+        st.dataframe(df_sentiment)
+
+        # Calculate the sentiment distribution for the current file
+        sentiment_distribution = df_sentiment.mean().drop("compound")
+
+        # Plot the sentiment distribution as a pie chart
+        plt.figure()
+        plt.pie(sentiment_distribution.values, labels=sentiment_distribution.index, autopct='%1.1f%%', startangle=90)
+        plt.axis('equal')
+        plt.title(f"Sentiment Distribution: {file_name}")
+        plt.tight_layout()
+        st.pyplot(plt)
+
+
+################################# SENTIMENT ANALYSIS PER USER PER FILES  ##############################
+    
+    
+
+
+
+
+
+
 ##################################################################
 with tab3:
     st.header("Data Mining")
