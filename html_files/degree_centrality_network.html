@@ -1,0 +1,250 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 750px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+             #loadingBar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width: 100%;
+                 height: 750px;
+                 background-color:rgba(200,200,200,0.8);
+                 -webkit-transition: all 0.5s ease;
+                 -moz-transition: all 0.5s ease;
+                 -ms-transition: all 0.5s ease;
+                 -o-transition: all 0.5s ease;
+                 transition: all 0.5s ease;
+                 opacity:1;
+             }
+
+             #bar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width:20px;
+                 height:20px;
+                 margin:auto auto auto auto;
+                 border-radius:11px;
+                 border:2px solid rgba(30,30,30,0.05);
+                 background: rgb(0, 173, 246); /* Old browsers */
+                 box-shadow: 2px 0px 4px rgba(0,0,0,0.4);
+             }
+
+             #border {
+                 position:absolute;
+                 top:10px;
+                 left:10px;
+                 width:500px;
+                 height:23px;
+                 margin:auto auto auto auto;
+                 box-shadow: 0px 0px 4px rgba(0,0,0,0.2);
+                 border-radius:10px;
+             }
+
+             #text {
+                 position:absolute;
+                 top:8px;
+                 left:530px;
+                 width:30px;
+                 height:50px;
+                 margin:auto auto auto auto;
+                 font-size:22px;
+                 color: #000000;
+             }
+
+             div.outerBorder {
+                 position:relative;
+                 top:400px;
+                 width:600px;
+                 height:44px;
+                 margin:auto auto auto auto;
+                 border:8px solid rgba(0,0,0,0.1);
+                 background: rgb(252,252,252); /* Old browsers */
+                 background: -moz-linear-gradient(top,  rgba(252,252,252,1) 0%, rgba(237,237,237,1) 100%); /* FF3.6+ */
+                 background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(252,252,252,1)), color-stop(100%,rgba(237,237,237,1))); /* Chrome,Safari4+ */
+                 background: -webkit-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Chrome10+,Safari5.1+ */
+                 background: -o-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Opera 11.10+ */
+                 background: -ms-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* IE10+ */
+                 background: linear-gradient(to bottom,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* W3C */
+                 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#ededed',GradientType=0 ); /* IE6-9 */
+                 border-radius:72px;
+                 box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+             }
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+            <div id="loadingBar">
+              <div class="outerBorder">
+                <div id="text">0%</div>
+                <div id="border">
+                  <div id="bar"></div>
+                </div>
+              </div>
+            </div>
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#97c2fc", "font": {"color": "#333333"}, "id": "Nitizen_Zen", "label": "Nitizen_Zen", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "_Goentoer_", "label": "_Goentoer_", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "6undul0h", "label": "6undul0h", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "Catatan_ali7", "label": "Catatan_ali7", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "AbdulKh38723382", "label": "AbdulKh38723382", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "KemenkesRI", "label": "KemenkesRI", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "tiwulman", "label": "tiwulman", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "JoeWilbarger", "label": "JoeWilbarger", "shape": "dot", "size": 0.3418803418803419}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "kerupuk1453", "label": "kerupuk1453", "shape": "dot", "size": 0.3418803418803419}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "venuezzsaturn", "label": "venuezzsaturn", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "matchalattei", "label": "matchalattei", "shape": "dot", "size": 0.3418803418803419}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "o2cui2i", "label": "o2cui2i", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "DawnTJ90", "label": "DawnTJ90", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "IDNTimes", "label": "IDNTimes", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "FriedrichPfizer", "label": "FriedrichPfizer", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "gmbutts", "label": "gmbutts", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "logikapolitikid", "label": "logikapolitikid", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "nntweetnn", "label": "nntweetnn", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "cnbcindonesia", "label": "cnbcindonesia", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "ngabseno", "label": "ngabseno", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "niwseir", "label": "niwseir", "shape": "dot", "size": 0.8547008547008548}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "oldfashionedly", "label": "oldfashionedly", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "NyaiiBubu", "label": "NyaiiBubu", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "Balak_tiga", "label": "Balak_tiga", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "jokowi", "label": "jokowi", "shape": "dot", "size": 0.6837606837606838}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "rudyawok1", "label": "rudyawok1", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "_palungmariana", "label": "_palungmariana", "shape": "dot", "size": 0.3418803418803419}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "jasminekhz_", "label": "jasminekhz_", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "Miduk17", "label": "Miduk17", "shape": "dot", "size": 0.3418803418803419}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "ngojekjauh", "label": "ngojekjauh", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "PolJokesID", "label": "PolJokesID", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "Ibnumal71390186", "label": "Ibnumal71390186", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "inilahdotcom", "label": "inilahdotcom", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "AYERSIMP", "label": "AYERSIMP", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "dkireijullie", "label": "dkireijullie", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "sri08054", "label": "sri08054", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "Sedangetik", "label": "Sedangetik", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "nksthi", "label": "nksthi", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "leonardus3007", "label": "leonardus3007", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "AkuAtikaFaya", "label": "AkuAtikaFaya", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "foke77363", "label": "foke77363", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "SefMika99369", "label": "SefMika99369", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "yaudahdehy", "label": "yaudahdehy", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "kaditdut", "label": "kaditdut", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "lithelylethal", "label": "lithelylethal", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "sampalle", "label": "sampalle", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "geloraco", "label": "geloraco", "shape": "dot", "size": 1.0256410256410258}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "toxynuscaV2", "label": "toxynuscaV2", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "Nordicblackmtl", "label": "Nordicblackmtl", "shape": "dot", "size": 0.3418803418803419}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "tengkorak_maut", "label": "tengkorak_maut", "shape": "dot", "size": 0.8547008547008548}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "mohmahfudmd", "label": "mohmahfudmd", "shape": "dot", "size": 0.6837606837606838}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "BlackcoTanya", "label": "BlackcoTanya", "shape": "dot", "size": 0.3418803418803419}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "AQSopo4", "label": "AQSopo4", "shape": "dot", "size": 0.3418803418803419}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "FaGtng", "label": "FaGtng", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "KejaksaanRI", "label": "KejaksaanRI", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "AbdulW95833824", "label": "AbdulW95833824", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "DS_yantie", "label": "DS_yantie", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "ASJBer1", "label": "ASJBer1", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "tifsembiring", "label": "tifsembiring", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "dieliatin", "label": "dieliatin", "shape": "dot", "size": 0.3418803418803419}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "rutan_muntok", "label": "rutan_muntok", "shape": "dot", "size": 0.3418803418803419}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "dayatbintang07", "label": "dayatbintang07", "shape": "dot", "size": 0.3418803418803419}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "Adiinotrino", "label": "Adiinotrino", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "KuretaID", "label": "KuretaID", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "opaparawitha", "label": "opaparawitha", "shape": "dot", "size": 0.5128205128205129}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "kumparan", "label": "kumparan", "shape": "dot", "size": 0.3418803418803419}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "ryder_emir", "label": "ryder_emir", "shape": "dot", "size": 0.3418803418803419}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "Kopi_kesunyian", "label": "Kopi_kesunyian", "shape": "dot", "size": 0.3418803418803419}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "kakak_ica", "label": "kakak_ica", "shape": "dot", "size": 0.3418803418803419}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "shae_ll", "label": "shae_ll", "shape": "dot", "size": 0.3418803418803419}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "Dr_Moeldoko", "label": "Dr_Moeldoko", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "EpraBejoe", "label": "EpraBejoe", "shape": "dot", "size": 0.3418803418803419}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "NasDem", "label": "NasDem", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "ZulKifl17902570", "label": "ZulKifl17902570", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "closetutheup", "label": "closetutheup", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "baymaxsad", "label": "baymaxsad", "shape": "dot", "size": 1.5384615384615385}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "Wintergrdn1", "label": "Wintergrdn1", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "zxahh_", "label": "zxahh_", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "iNewsprob", "label": "iNewsprob", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "flowercoffeee", "label": "flowercoffeee", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "unnesmenfess", "label": "unnesmenfess", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "adtazxxs", "label": "adtazxxs", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "haiauliaa", "label": "haiauliaa", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "19_Kholipahsiti", "label": "19_Kholipahsiti", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "dawbrigidaw", "label": "dawbrigidaw", "shape": "dot", "size": 0.3418803418803419}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "intanooraini", "label": "intanooraini", "shape": "dot", "size": 0.3418803418803419}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "aidarah", "label": "aidarah", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "Harian_Jogja", "label": "Harian_Jogja", "shape": "dot", "size": 1.7094017094017095}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "agiegi", "label": "agiegi", "shape": "dot", "size": 0.3418803418803419}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "ChaeryoungC", "label": "ChaeryoungC", "shape": "dot", "size": 0.3418803418803419}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "oprt234", "label": "oprt234", "shape": "dot", "size": 0.3418803418803419}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "nadivakemala", "label": "nadivakemala", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "maulidinastri", "label": "maulidinastri", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "tribunjogja", "label": "tribunjogja", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "genefege", "label": "genefege", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "aiyra28", "label": "aiyra28", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "Kriuuukid", "label": "Kriuuukid", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "Arwini03", "label": "Arwini03", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "telkomkti", "label": "telkomkti", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "AmandaBriley787", "label": "AmandaBriley787", "shape": "dot", "size": 0.3418803418803419}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "mameteds", "label": "mameteds", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "HAECHANSMA", "label": "HAECHANSMA", "shape": "dot", "size": 0.17094017094017094}, {"color": "#97c2fc", "font": {"color": "#333333"}, "id": "putpuwi", "label": "putpuwi", "shape": "dot", "size": 0.17094017094017094}]);
+                  edges = new vis.DataSet([{"arrows": "to", "from": "Nitizen_Zen", "label": "retweeted", "to": "_Goentoer_"}, {"arrows": "to", "from": "6undul0h", "label": "retweeted", "to": "Catatan_ali7"}, {"arrows": "to", "from": "AbdulKh38723382", "label": "retweeted", "to": "KemenkesRI"}, {"arrows": "to", "from": "tiwulman", "label": "mentioned", "to": "IDNTimes"}, {"arrows": "to", "from": "JoeWilbarger", "label": "mentioned", "to": "FriedrichPfizer"}, {"arrows": "to", "from": "JoeWilbarger", "label": "mentioned", "to": "gmbutts"}, {"arrows": "to", "from": "kerupuk1453", "label": "mentioned", "to": "logikapolitikid"}, {"arrows": "to", "from": "kerupuk1453", "label": "retweeted", "to": "matchalattei"}, {"arrows": "to", "from": "venuezzsaturn", "label": "mentioned", "to": "matchalattei"}, {"arrows": "to", "from": "o2cui2i", "label": "mentioned", "to": "DawnTJ90"}, {"arrows": "to", "from": "nntweetnn", "label": "retweeted", "to": "cnbcindonesia"}, {"arrows": "to", "from": "ngabseno", "label": "retweeted", "to": "niwseir"}, {"arrows": "to", "from": "niwseir", "label": "retweeted", "to": "Miduk17"}, {"arrows": "to", "from": "oldfashionedly", "label": "retweeted", "to": "NyaiiBubu"}, {"arrows": "to", "from": "Balak_tiga", "label": "retweeted", "to": "jokowi"}, {"arrows": "to", "from": "rudyawok1", "label": "retweeted", "to": "_palungmariana"}, {"arrows": "to", "from": "jasminekhz_", "label": "retweeted", "to": "Miduk17"}, {"arrows": "to", "from": "ngojekjauh", "label": "retweeted", "to": "PolJokesID"}, {"arrows": "to", "from": "Ibnumal71390186", "label": "retweeted", "to": "inilahdotcom"}, {"arrows": "to", "from": "AYERSIMP", "label": "retweeted", "to": "niwseir"}, {"arrows": "to", "from": "dkireijullie", "label": "retweeted", "to": "niwseir"}, {"arrows": "to", "from": "sri08054", "label": "retweeted", "to": "_palungmariana"}, {"arrows": "to", "from": "Sedangetik", "label": "retweeted", "to": "nksthi"}, {"arrows": "to", "from": "leonardus3007", "label": "retweeted", "to": "AkuAtikaFaya"}, {"arrows": "to", "from": "foke77363", "label": "retweeted", "to": "SefMika99369"}, {"arrows": "to", "from": "yaudahdehy", "label": "retweeted", "to": "niwseir"}, {"arrows": "to", "from": "kaditdut", "label": "retweeted", "to": "lithelylethal"}, {"arrows": "to", "from": "sampalle", "label": "mentioned", "to": "geloraco"}, {"arrows": "to", "from": "toxynuscaV2", "label": "mentioned", "to": "geloraco"}, {"arrows": "to", "from": "Nordicblackmtl", "label": "mentioned", "to": "tengkorak_maut"}, {"arrows": "to", "from": "Nordicblackmtl", "label": "mentioned", "to": "mohmahfudmd"}, {"arrows": "to", "from": "tengkorak_maut", "label": "mentioned", "to": "mohmahfudmd"}, {"arrows": "to", "from": "BlackcoTanya", "label": "mentioned", "to": "tengkorak_maut"}, {"arrows": "to", "from": "BlackcoTanya", "label": "mentioned", "to": "mohmahfudmd"}, {"arrows": "to", "from": "AQSopo4", "label": "mentioned", "to": "FaGtng"}, {"arrows": "to", "from": "AQSopo4", "label": "mentioned", "to": "KejaksaanRI"}, {"arrows": "to", "from": "AbdulW95833824", "label": "mentioned", "to": "DS_yantie"}, {"arrows": "to", "from": "ASJBer1", "label": "mentioned", "to": "tifsembiring"}, {"arrows": "to", "from": "dieliatin", "label": "mentioned", "to": "jokowi"}, {"arrows": "to", "from": "dieliatin", "label": "retweeted", "to": "rutan_muntok"}, {"arrows": "to", "from": "dayatbintang07", "label": "mentioned", "to": "rutan_muntok"}, {"arrows": "to", "from": "dayatbintang07", "label": "retweeted", "to": "jokowi"}, {"arrows": "to", "from": "Adiinotrino", "label": "mentioned", "to": "jokowi"}, {"arrows": "to", "from": "KuretaID", "label": "retweeted", "to": "tengkorak_maut"}, {"arrows": "to", "from": "opaparawitha", "label": "mentioned", "to": "tengkorak_maut"}, {"arrows": "to", "from": "opaparawitha", "label": "mentioned", "to": "mohmahfudmd"}, {"arrows": "to", "from": "opaparawitha", "label": "retweeted", "to": "kumparan"}, {"arrows": "to", "from": "ryder_emir", "label": "mentioned", "to": "kumparan"}, {"arrows": "to", "from": "ryder_emir", "label": "retweeted", "to": "geloraco"}, {"arrows": "to", "from": "Kopi_kesunyian", "label": "mentioned", "to": "geloraco"}, {"arrows": "to", "from": "Kopi_kesunyian", "label": "retweeted", "to": "kakak_ica"}, {"arrows": "to", "from": "shae_ll", "label": "mentioned", "to": "kakak_ica"}, {"arrows": "to", "from": "shae_ll", "label": "mentioned", "to": "Dr_Moeldoko"}, {"arrows": "to", "from": "EpraBejoe", "label": "mentioned", "to": "NasDem"}, {"arrows": "to", "from": "EpraBejoe", "label": "retweeted", "to": "geloraco"}, {"arrows": "to", "from": "ZulKifl17902570", "label": "mentioned", "to": "geloraco"}, {"arrows": "to", "from": "closetutheup", "label": "retweeted", "to": "baymaxsad"}, {"arrows": "to", "from": "baymaxsad", "label": "retweeted", "to": "dawbrigidaw"}, {"arrows": "to", "from": "Wintergrdn1", "label": "retweeted", "to": "baymaxsad"}, {"arrows": "to", "from": "zxahh_", "label": "retweeted", "to": "baymaxsad"}, {"arrows": "to", "from": "iNewsprob", "label": "retweeted", "to": "baymaxsad"}, {"arrows": "to", "from": "flowercoffeee", "label": "retweeted", "to": "baymaxsad"}, {"arrows": "to", "from": "unnesmenfess", "label": "retweeted", "to": "baymaxsad"}, {"arrows": "to", "from": "adtazxxs", "label": "retweeted", "to": "baymaxsad"}, {"arrows": "to", "from": "haiauliaa", "label": "retweeted", "to": "baymaxsad"}, {"arrows": "to", "from": "19_Kholipahsiti", "label": "retweeted", "to": "dawbrigidaw"}, {"arrows": "to", "from": "intanooraini", "label": "mentioned", "to": "putpuwi"}, {"arrows": "to", "from": "intanooraini", "label": "retweeted", "to": "Harian_Jogja"}, {"arrows": "to", "from": "aidarah", "label": "mentioned", "to": "Harian_Jogja"}, {"arrows": "to", "from": "agiegi", "label": "mentioned", "to": "Harian_Jogja"}, {"arrows": "to", "from": "agiegi", "label": "retweeted", "to": "oprt234"}, {"arrows": "to", "from": "ChaeryoungC", "label": "mentioned", "to": "oprt234"}, {"arrows": "to", "from": "ChaeryoungC", "label": "retweeted", "to": "Harian_Jogja"}, {"arrows": "to", "from": "nadivakemala", "label": "mentioned", "to": "Harian_Jogja"}, {"arrows": "to", "from": "maulidinastri", "label": "mentioned", "to": "Harian_Jogja"}, {"arrows": "to", "from": "tribunjogja", "label": "retweeted", "to": "Harian_Jogja"}, {"arrows": "to", "from": "genefege", "label": "mentioned", "to": "Harian_Jogja"}, {"arrows": "to", "from": "aiyra28", "label": "retweeted", "to": "Kriuuukid"}, {"arrows": "to", "from": "Arwini03", "label": "retweeted", "to": "telkomkti"}, {"arrows": "to", "from": "AmandaBriley787", "label": "mentioned", "to": "mameteds"}, {"arrows": "to", "from": "AmandaBriley787", "label": "retweeted", "to": "Harian_Jogja"}, {"arrows": "to", "from": "HAECHANSMA", "label": "mentioned", "to": "Harian_Jogja"}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+                      network.on("stabilizationProgress", function(params) {
+                          document.getElementById('loadingBar').removeAttribute("style");
+                          var maxWidth = 496;
+                          var minWidth = 20;
+                          var widthFactor = params.iterations/params.total;
+                          var width = Math.max(minWidth,maxWidth * widthFactor);
+                          document.getElementById('bar').style.width = width + 'px';
+                          document.getElementById('text').innerHTML = Math.round(widthFactor*100) + '%';
+                      });
+                      network.once("stabilizationIterationsDone", function() {
+                          document.getElementById('text').innerHTML = '100%';
+                          document.getElementById('bar').style.width = '496px';
+                          document.getElementById('loadingBar').style.opacity = 0;
+                          // really clean the dom element
+                          setTimeout(function () {document.getElementById('loadingBar').style.display = 'none';}, 500);
+                      });
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

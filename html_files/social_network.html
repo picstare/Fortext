@@ -1,0 +1,250 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 750px;
+                 background-color: #fff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+             #loadingBar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width: 100%;
+                 height: 750px;
+                 background-color:rgba(200,200,200,0.8);
+                 -webkit-transition: all 0.5s ease;
+                 -moz-transition: all 0.5s ease;
+                 -ms-transition: all 0.5s ease;
+                 -o-transition: all 0.5s ease;
+                 transition: all 0.5s ease;
+                 opacity:1;
+             }
+
+             #bar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width:20px;
+                 height:20px;
+                 margin:auto auto auto auto;
+                 border-radius:11px;
+                 border:2px solid rgba(30,30,30,0.05);
+                 background: rgb(0, 173, 246); /* Old browsers */
+                 box-shadow: 2px 0px 4px rgba(0,0,0,0.4);
+             }
+
+             #border {
+                 position:absolute;
+                 top:10px;
+                 left:10px;
+                 width:500px;
+                 height:23px;
+                 margin:auto auto auto auto;
+                 box-shadow: 0px 0px 4px rgba(0,0,0,0.2);
+                 border-radius:10px;
+             }
+
+             #text {
+                 position:absolute;
+                 top:8px;
+                 left:530px;
+                 width:30px;
+                 height:50px;
+                 margin:auto auto auto auto;
+                 font-size:22px;
+                 color: #000000;
+             }
+
+             div.outerBorder {
+                 position:relative;
+                 top:400px;
+                 width:600px;
+                 height:44px;
+                 margin:auto auto auto auto;
+                 border:8px solid rgba(0,0,0,0.1);
+                 background: rgb(252,252,252); /* Old browsers */
+                 background: -moz-linear-gradient(top,  rgba(252,252,252,1) 0%, rgba(237,237,237,1) 100%); /* FF3.6+ */
+                 background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(252,252,252,1)), color-stop(100%,rgba(237,237,237,1))); /* Chrome,Safari4+ */
+                 background: -webkit-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Chrome10+,Safari5.1+ */
+                 background: -o-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Opera 11.10+ */
+                 background: -ms-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* IE10+ */
+                 background: linear-gradient(to bottom,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* W3C */
+                 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#ededed',GradientType=0 ); /* IE6-9 */
+                 border-radius:72px;
+                 box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+             }
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+            <div id="loadingBar">
+              <div class="outerBorder">
+                <div id="text">0%</div>
+                <div id="border">
+                  <div id="bar"></div>
+                </div>
+              </div>
+            </div>
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#2CD3E1", "font": {"color": "#3C486B"}, "id": "AgusYudhoyono_data", "label": "AgusYudhoyono_data", "shape": "dot", "title": "AgusYudhoyono_data"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "TriHandi14", "label": "TriHandi14", "shape": "dot", "title": "TriHandi14"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "sukermarket", "label": "sukermarket", "shape": "dot", "title": "sukermarket"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "parabelum1971", "label": "parabelum1971", "shape": "dot", "title": "parabelum1971"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "MyXdzz", "label": "MyXdzz", "shape": "dot", "title": "MyXdzz"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "MulyadiAssamba1", "label": "MulyadiAssamba1", "shape": "dot", "title": "MulyadiAssamba1"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "AndiIrvanbahti1", "label": "AndiIrvanbahti1", "shape": "dot", "title": "AndiIrvanbahti1"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "AbuGhazy1820331", "label": "AbuGhazy1820331", "shape": "dot", "title": "AbuGhazy1820331"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "BayuEkaLesmana", "label": "BayuEkaLesmana", "shape": "dot", "title": "BayuEkaLesmana"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "Oman11326469", "label": "Oman11326469", "shape": "dot", "title": "Oman11326469"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "setya3014861164", "label": "setya3014861164", "shape": "dot", "title": "setya3014861164"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "solehbenhasanb1", "label": "solehbenhasanb1", "shape": "dot", "title": "solehbenhasanb1"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "dulham1302", "label": "dulham1302", "shape": "dot", "title": "dulham1302"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "Syarifuddi16546", "label": "Syarifuddi16546", "shape": "dot", "title": "Syarifuddi16546"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "Jahdimarasabes1", "label": "Jahdimarasabes1", "shape": "dot", "title": "Jahdimarasabes1"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "Hijrahqu85", "label": "Hijrahqu85", "shape": "dot", "title": "Hijrahqu85"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "DevieApriany", "label": "DevieApriany", "shape": "dot", "title": "DevieApriany"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "sellasellasella", "label": "sellasellasella", "shape": "dot", "title": "sellasellasella"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "HafidMu085236", "label": "HafidMu085236", "shape": "dot", "title": "HafidMu085236"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "fffhhyyii", "label": "fffhhyyii", "shape": "dot", "title": "fffhhyyii"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "rozak_2020", "label": "rozak_2020", "shape": "dot", "title": "rozak_2020"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "Abe_Mukti", "label": "Abe_Mukti", "shape": "dot", "title": "Abe_Mukti"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "ward_berenschot", "label": "ward_berenschot", "shape": "dot", "title": "ward_berenschot"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "aniesbaswedan", "label": "aniesbaswedan", "shape": "dot", "title": "aniesbaswedan"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "kangchandra5", "label": "kangchandra5", "shape": "dot", "title": "kangchandra5"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "hariankompas", "label": "hariankompas", "shape": "dot", "title": "hariankompas"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "SMujsin", "label": "SMujsin", "shape": "dot", "title": "SMujsin"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "AdjieSSoera", "label": "AdjieSSoera", "shape": "dot", "title": "AdjieSSoera"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "venomize", "label": "venomize", "shape": "dot", "title": "venomize"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "DkiSantoso", "label": "DkiSantoso", "shape": "dot", "title": "DkiSantoso"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "ANDINURPATI3", "label": "ANDINURPATI3", "shape": "dot", "title": "ANDINURPATI3"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "YanHarahap", "label": "YanHarahap", "shape": "dot", "title": "YanHarahap"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "IrSuryanagara20", "label": "IrSuryanagara20", "shape": "dot", "title": "IrSuryanagara20"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "Antonsuratto1", "label": "Antonsuratto1", "shape": "dot", "title": "Antonsuratto1"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "Unair_Official", "label": "Unair_Official", "shape": "dot", "title": "Unair_Official"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "tubagussalim", "label": "tubagussalim", "shape": "dot", "title": "tubagussalim"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "largurda_ind", "label": "largurda_ind", "shape": "dot", "title": "largurda_ind"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "nahdlatululama", "label": "nahdlatululama", "shape": "dot", "title": "nahdlatululama"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "jasroelkoto", "label": "jasroelkoto", "shape": "dot", "title": "jasroelkoto"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "INABadminton", "label": "INABadminton", "shape": "dot", "title": "INABadminton"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "mojokdotco", "label": "mojokdotco", "shape": "dot", "title": "mojokdotco"}, {"color": "#2CD3E1", "font": {"color": "#3C486B"}, "id": "airlangga_hrt_data", "label": "airlangga_hrt_data", "shape": "dot", "title": "airlangga_hrt_data"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "KoperasiYm19177", "label": "KoperasiYm19177", "shape": "dot", "title": "KoperasiYm19177"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "PutraKomod95329", "label": "PutraKomod95329", "shape": "dot", "title": "PutraKomod95329"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "AmeeraKwok", "label": "AmeeraKwok", "shape": "dot", "title": "AmeeraKwok"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "he_boy57", "label": "he_boy57", "shape": "dot", "title": "he_boy57"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "Agyl31", "label": "Agyl31", "shape": "dot", "title": "Agyl31"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "maghroby_faiz", "label": "maghroby_faiz", "shape": "dot", "title": "maghroby_faiz"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "HisbullahAM", "label": "HisbullahAM", "shape": "dot", "title": "HisbullahAM"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "AdibKone64047", "label": "AdibKone64047", "shape": "dot", "title": "AdibKone64047"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "ANGGAROSIDIN2", "label": "ANGGAROSIDIN2", "shape": "dot", "title": "ANGGAROSIDIN2"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "adityanugraha82", "label": "adityanugraha82", "shape": "dot", "title": "adityanugraha82"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "ExoKristianto86", "label": "ExoKristianto86", "shape": "dot", "title": "ExoKristianto86"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "ZulKarn60856009", "label": "ZulKarn60856009", "shape": "dot", "title": "ZulKarn60856009"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "blegur_eka2449", "label": "blegur_eka2449", "shape": "dot", "title": "blegur_eka2449"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "lihin4343", "label": "lihin4343", "shape": "dot", "title": "lihin4343"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "Priyantoro2321", "label": "Priyantoro2321", "shape": "dot", "title": "Priyantoro2321"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "Singgih29537743", "label": "Singgih29537743", "shape": "dot", "title": "Singgih29537743"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "kvltrl", "label": "kvltrl", "shape": "dot", "title": "kvltrl"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "DistyaDiraS", "label": "DistyaDiraS", "shape": "dot", "title": "DistyaDiraS"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "Adefitria90", "label": "Adefitria90", "shape": "dot", "title": "Adefitria90"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "IvanMangunsong1", "label": "IvanMangunsong1", "shape": "dot", "title": "IvanMangunsong1"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "DPP_PPP", "label": "DPP_PPP", "shape": "dot", "title": "DPP_PPP"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "Official_PAN", "label": "Official_PAN", "shape": "dot", "title": "Official_PAN"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "VDombrovskis", "label": "VDombrovskis", "shape": "dot", "title": "VDombrovskis"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "golkar_id", "label": "golkar_id", "shape": "dot", "title": "golkar_id"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "cakimiNOW", "label": "cakimiNOW", "shape": "dot", "title": "cakimiNOW"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "rief_ww_apg", "label": "rief_ww_apg", "shape": "dot", "title": "rief_ww_apg"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "fahiraidris", "label": "fahiraidris", "shape": "dot", "title": "fahiraidris"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "dpdgolkarbanten", "label": "dpdgolkarbanten", "shape": "dot", "title": "dpdgolkarbanten"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "kemenkopmk", "label": "kemenkopmk", "shape": "dot", "title": "kemenkopmk"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "DubesAustralia", "label": "DubesAustralia", "shape": "dot", "title": "DubesAustralia"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "UNIDO", "label": "UNIDO", "shape": "dot", "title": "UNIDO"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "EkoSandjojo", "label": "EkoSandjojo", "shape": "dot", "title": "EkoSandjojo"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "bkpm", "label": "bkpm", "shape": "dot", "title": "bkpm"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "PolitisiPejuang", "label": "PolitisiPejuang", "shape": "dot", "title": "PolitisiPejuang"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "Amran_Sulaiman1", "label": "Amran_Sulaiman1", "shape": "dot", "title": "Amran_Sulaiman1"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "EnggarLkt", "label": "EnggarLkt", "shape": "dot", "title": "EnggarLkt"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "NZinJakarta", "label": "NZinJakarta", "shape": "dot", "title": "NZinJakarta"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "hanifdhakiri", "label": "hanifdhakiri", "shape": "dot", "title": "hanifdhakiri"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "detikfinance", "label": "detikfinance", "shape": "dot", "title": "detikfinance"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "KBRI_NewDelhi", "label": "KBRI_NewDelhi", "shape": "dot", "title": "KBRI_NewDelhi"}, {"color": "#2CD3E1", "font": {"color": "#3C486B"}, "id": "aniesbaswedan_data", "label": "aniesbaswedan_data", "shape": "dot", "title": "aniesbaswedan_data"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "Ahmad60847Ahmad", "label": "Ahmad60847Ahmad", "shape": "dot", "title": "Ahmad60847Ahmad"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "AndangLand43004", "label": "AndangLand43004", "shape": "dot", "title": "AndangLand43004"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "AbdulSyuku21391", "label": "AbdulSyuku21391", "shape": "dot", "title": "AbdulSyuku21391"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "NuraisyahR47262", "label": "NuraisyahR47262", "shape": "dot", "title": "NuraisyahR47262"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "bangjalu_23", "label": "bangjalu_23", "shape": "dot", "title": "bangjalu_23"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "Afdal_Maruf89", "label": "Afdal_Maruf89", "shape": "dot", "title": "Afdal_Maruf89"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "MukhamadFadli", "label": "MukhamadFadli", "shape": "dot", "title": "MukhamadFadli"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "Maryani00035048", "label": "Maryani00035048", "shape": "dot", "title": "Maryani00035048"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "IwanShogon65172", "label": "IwanShogon65172", "shape": "dot", "title": "IwanShogon65172"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "12345678ajdh", "label": "12345678ajdh", "shape": "dot", "title": "12345678ajdh"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "Angkringan2410", "label": "Angkringan2410", "shape": "dot", "title": "Angkringan2410"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "BilalPane97", "label": "BilalPane97", "shape": "dot", "title": "BilalPane97"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "praindra419546", "label": "praindra419546", "shape": "dot", "title": "praindra419546"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "AgusSet44959869", "label": "AgusSet44959869", "shape": "dot", "title": "AgusSet44959869"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "KusmanaMohamad", "label": "KusmanaMohamad", "shape": "dot", "title": "KusmanaMohamad"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "AgafurP42815", "label": "AgafurP42815", "shape": "dot", "title": "AgafurP42815"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "MarsukiZaini", "label": "MarsukiZaini", "shape": "dot", "title": "MarsukiZaini"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "alexbuz123", "label": "alexbuz123", "shape": "dot", "title": "alexbuz123"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "RudiHar21943648", "label": "RudiHar21943648", "shape": "dot", "title": "RudiHar21943648"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "magevalir0011", "label": "magevalir0011", "shape": "dot", "title": "magevalir0011"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "syaikhu_ahmad", "label": "syaikhu_ahmad", "shape": "dot", "title": "syaikhu_ahmad"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "PDemokrat", "label": "PDemokrat", "shape": "dot", "title": "PDemokrat"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "bawa_ide", "label": "bawa_ide", "shape": "dot", "title": "bawa_ide"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "infoBMKG", "label": "infoBMKG", "shape": "dot", "title": "infoBMKG"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "AgusYudhoyono", "label": "AgusYudhoyono", "shape": "dot", "title": "AgusYudhoyono"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "NasDem", "label": "NasDem", "shape": "dot", "title": "NasDem"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "c40cities", "label": "c40cities", "shape": "dot", "title": "c40cities"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "jalahoaks", "label": "jalahoaks", "shape": "dot", "title": "jalahoaks"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "ArizaPatria", "label": "ArizaPatria", "shape": "dot", "title": "ArizaPatria"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "tamanhutandki", "label": "tamanhutandki", "shape": "dot", "title": "tamanhutandki"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "itdpindonesia", "label": "itdpindonesia", "shape": "dot", "title": "itdpindonesia"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "BappedaDKI", "label": "BappedaDKI", "shape": "dot", "title": "BappedaDKI"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "pembsaranajaya", "label": "pembsaranajaya", "shape": "dot", "title": "pembsaranajaya"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "dinkesJKT", "label": "dinkesJKT", "shape": "dot", "title": "dinkesJKT"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "dkpkpjakarta", "label": "dkpkpjakarta", "shape": "dot", "title": "dkpkpjakarta"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "KANSAR_JAKARTA", "label": "KANSAR_JAKARTA", "shape": "dot", "title": "KANSAR_JAKARTA"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "usembassyjkt", "label": "usembassyjkt", "shape": "dot", "title": "usembassyjkt"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "Disdik_DKI", "label": "Disdik_DKI", "shape": "dot", "title": "Disdik_DKI"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "humasjakfire", "label": "humasjakfire", "shape": "dot", "title": "humasjakfire"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "KabupatenP1000", "label": "KabupatenP1000", "shape": "dot", "title": "KabupatenP1000"}, {"color": "#2CD3E1", "font": {"color": "#3C486B"}, "id": "ganjarpranowo_data", "label": "ganjarpranowo_data", "shape": "dot", "title": "ganjarpranowo_data"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "cunkku1410", "label": "cunkku1410", "shape": "dot", "title": "cunkku1410"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "andrienrfzy26", "label": "andrienrfzy26", "shape": "dot", "title": "andrienrfzy26"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "MalaYoongi", "label": "MalaYoongi", "shape": "dot", "title": "MalaYoongi"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "clsheeaa", "label": "clsheeaa", "shape": "dot", "title": "clsheeaa"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "Faiqo_himma", "label": "Faiqo_himma", "shape": "dot", "title": "Faiqo_himma"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "galihsptr76", "label": "galihsptr76", "shape": "dot", "title": "galihsptr76"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "WungkulYandi", "label": "WungkulYandi", "shape": "dot", "title": "WungkulYandi"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "kowilarang", "label": "kowilarang", "shape": "dot", "title": "kowilarang"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "cin166805838402", "label": "cin166805838402", "shape": "dot", "title": "cin166805838402"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "jamaludin260601", "label": "jamaludin260601", "shape": "dot", "title": "jamaludin260601"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "Adeline1881", "label": "Adeline1881", "shape": "dot", "title": "Adeline1881"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "MaarifM82151", "label": "MaarifM82151", "shape": "dot", "title": "MaarifM82151"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "Darapermat80402", "label": "Darapermat80402", "shape": "dot", "title": "Darapermat80402"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "GalihFarma38658", "label": "GalihFarma38658", "shape": "dot", "title": "GalihFarma38658"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "subang_kot51216", "label": "subang_kot51216", "shape": "dot", "title": "subang_kot51216"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "DyazJavu", "label": "DyazJavu", "shape": "dot", "title": "DyazJavu"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "lestari01_gia", "label": "lestari01_gia", "shape": "dot", "title": "lestari01_gia"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "sultanasep157", "label": "sultanasep157", "shape": "dot", "title": "sultanasep157"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "Ayyuutty", "label": "Ayyuutty", "shape": "dot", "title": "Ayyuutty"}, {"color": "#FFA500", "font": {"color": "#3C486B"}, "id": "hanya_baca", "label": "hanya_baca", "shape": "dot", "title": "hanya_baca"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "ListyoSigitP", "label": "ListyoSigitP", "shape": "dot", "title": "ListyoSigitP"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "YahyaCStaquf", "label": "YahyaCStaquf", "shape": "dot", "title": "YahyaCStaquf"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "iamspecialized", "label": "iamspecialized", "shape": "dot", "title": "iamspecialized"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "bikerumor", "label": "bikerumor", "shape": "dot", "title": "bikerumor"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "bikeradar", "label": "bikeradar", "shape": "dot", "title": "bikeradar"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "cyclingweekly", "label": "cyclingweekly", "shape": "dot", "title": "cyclingweekly"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "Cyclingnewsfeed", "label": "Cyclingnewsfeed", "shape": "dot", "title": "Cyclingnewsfeed"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "ZoobdooNFT", "label": "ZoobdooNFT", "shape": "dot", "title": "ZoobdooNFT"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "NPCIJateng", "label": "NPCIJateng", "shape": "dot", "title": "NPCIJateng"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "puanmaharani_ri", "label": "puanmaharani_ri", "shape": "dot", "title": "puanmaharani_ri"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "gibran_tweet", "label": "gibran_tweet", "shape": "dot", "title": "gibran_tweet"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "FaheemYounus", "label": "FaheemYounus", "shape": "dot", "title": "FaheemYounus"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "kominfo_srg", "label": "kominfo_srg", "shape": "dot", "title": "kominfo_srg"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "gembongITB", "label": "gembongITB", "shape": "dot", "title": "gembongITB"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "reskrimsusjtg", "label": "reskrimsusjtg", "shape": "dot", "title": "reskrimsusjtg"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "penkopassus", "label": "penkopassus", "shape": "dot", "title": "penkopassus"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "_TNIAL_", "label": "_TNIAL_", "shape": "dot", "title": "_TNIAL_"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "mprgoid", "label": "mprgoid", "shape": "dot", "title": "mprgoid"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "kemendagri", "label": "kemendagri", "shape": "dot", "title": "kemendagri"}, {"color": "#F5AEC1", "font": {"color": "#3C486B"}, "id": "BPIPRI", "label": "BPIPRI", "shape": "dot", "title": "BPIPRI"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "from": "AgusYudhoyono_data", "to": "Abe_Mukti"}, {"arrows": "to", "from": "AgusYudhoyono_data", "to": "ward_berenschot"}, {"arrows": "to", "from": "AgusYudhoyono_data", "to": "aniesbaswedan"}, {"arrows": "to", "from": "AgusYudhoyono_data", "to": "kangchandra5"}, {"arrows": "to", "from": "AgusYudhoyono_data", "to": "hariankompas"}, {"arrows": "to", "from": "AgusYudhoyono_data", "to": "SMujsin"}, {"arrows": "to", "from": "AgusYudhoyono_data", "to": "AdjieSSoera"}, {"arrows": "to", "from": "AgusYudhoyono_data", "to": "venomize"}, {"arrows": "to", "from": "AgusYudhoyono_data", "to": "DkiSantoso"}, {"arrows": "to", "from": "AgusYudhoyono_data", "to": "ANDINURPATI3"}, {"arrows": "to", "from": "AgusYudhoyono_data", "to": "YanHarahap"}, {"arrows": "to", "from": "AgusYudhoyono_data", "to": "IrSuryanagara20"}, {"arrows": "to", "from": "AgusYudhoyono_data", "to": "Antonsuratto1"}, {"arrows": "to", "from": "AgusYudhoyono_data", "to": "Unair_Official"}, {"arrows": "to", "from": "AgusYudhoyono_data", "to": "tubagussalim"}, {"arrows": "to", "from": "AgusYudhoyono_data", "to": "largurda_ind"}, {"arrows": "to", "from": "AgusYudhoyono_data", "to": "nahdlatululama"}, {"arrows": "to", "from": "AgusYudhoyono_data", "to": "jasroelkoto"}, {"arrows": "to", "from": "AgusYudhoyono_data", "to": "INABadminton"}, {"arrows": "to", "from": "AgusYudhoyono_data", "to": "mojokdotco"}, {"arrows": "to", "from": "TriHandi14", "to": "AgusYudhoyono_data"}, {"arrows": "to", "from": "sukermarket", "to": "AgusYudhoyono_data"}, {"arrows": "to", "from": "parabelum1971", "to": "AgusYudhoyono_data"}, {"arrows": "to", "from": "MyXdzz", "to": "AgusYudhoyono_data"}, {"arrows": "to", "from": "MulyadiAssamba1", "to": "AgusYudhoyono_data"}, {"arrows": "to", "from": "AndiIrvanbahti1", "to": "AgusYudhoyono_data"}, {"arrows": "to", "from": "AbuGhazy1820331", "to": "AgusYudhoyono_data"}, {"arrows": "to", "from": "BayuEkaLesmana", "to": "AgusYudhoyono_data"}, {"arrows": "to", "from": "Oman11326469", "to": "AgusYudhoyono_data"}, {"arrows": "to", "from": "setya3014861164", "to": "AgusYudhoyono_data"}, {"arrows": "to", "from": "solehbenhasanb1", "to": "AgusYudhoyono_data"}, {"arrows": "to", "from": "dulham1302", "to": "AgusYudhoyono_data"}, {"arrows": "to", "from": "Syarifuddi16546", "to": "AgusYudhoyono_data"}, {"arrows": "to", "from": "Jahdimarasabes1", "to": "AgusYudhoyono_data"}, {"arrows": "to", "from": "Hijrahqu85", "to": "AgusYudhoyono_data"}, {"arrows": "to", "from": "DevieApriany", "to": "AgusYudhoyono_data"}, {"arrows": "to", "from": "sellasellasella", "to": "AgusYudhoyono_data"}, {"arrows": "to", "from": "HafidMu085236", "to": "AgusYudhoyono_data"}, {"arrows": "to", "from": "fffhhyyii", "to": "AgusYudhoyono_data"}, {"arrows": "to", "from": "rozak_2020", "to": "AgusYudhoyono_data"}, {"arrows": "to", "from": "airlangga_hrt_data", "to": "DPP_PPP"}, {"arrows": "to", "from": "airlangga_hrt_data", "to": "Official_PAN"}, {"arrows": "to", "from": "airlangga_hrt_data", "to": "VDombrovskis"}, {"arrows": "to", "from": "airlangga_hrt_data", "to": "golkar_id"}, {"arrows": "to", "from": "airlangga_hrt_data", "to": "cakimiNOW"}, {"arrows": "to", "from": "airlangga_hrt_data", "to": "rief_ww_apg"}, {"arrows": "to", "from": "airlangga_hrt_data", "to": "fahiraidris"}, {"arrows": "to", "from": "airlangga_hrt_data", "to": "dpdgolkarbanten"}, {"arrows": "to", "from": "airlangga_hrt_data", "to": "kemenkopmk"}, {"arrows": "to", "from": "airlangga_hrt_data", "to": "DubesAustralia"}, {"arrows": "to", "from": "airlangga_hrt_data", "to": "UNIDO"}, {"arrows": "to", "from": "airlangga_hrt_data", "to": "EkoSandjojo"}, {"arrows": "to", "from": "airlangga_hrt_data", "to": "bkpm"}, {"arrows": "to", "from": "airlangga_hrt_data", "to": "PolitisiPejuang"}, {"arrows": "to", "from": "airlangga_hrt_data", "to": "Amran_Sulaiman1"}, {"arrows": "to", "from": "airlangga_hrt_data", "to": "EnggarLkt"}, {"arrows": "to", "from": "airlangga_hrt_data", "to": "NZinJakarta"}, {"arrows": "to", "from": "airlangga_hrt_data", "to": "hanifdhakiri"}, {"arrows": "to", "from": "airlangga_hrt_data", "to": "detikfinance"}, {"arrows": "to", "from": "airlangga_hrt_data", "to": "KBRI_NewDelhi"}, {"arrows": "to", "from": "KoperasiYm19177", "to": "airlangga_hrt_data"}, {"arrows": "to", "from": "PutraKomod95329", "to": "airlangga_hrt_data"}, {"arrows": "to", "from": "AmeeraKwok", "to": "airlangga_hrt_data"}, {"arrows": "to", "from": "he_boy57", "to": "airlangga_hrt_data"}, {"arrows": "to", "from": "Agyl31", "to": "airlangga_hrt_data"}, {"arrows": "to", "from": "maghroby_faiz", "to": "airlangga_hrt_data"}, {"arrows": "to", "from": "HisbullahAM", "to": "airlangga_hrt_data"}, {"arrows": "to", "from": "AdibKone64047", "to": "airlangga_hrt_data"}, {"arrows": "to", "from": "ANGGAROSIDIN2", "to": "airlangga_hrt_data"}, {"arrows": "to", "from": "adityanugraha82", "to": "airlangga_hrt_data"}, {"arrows": "to", "from": "ExoKristianto86", "to": "airlangga_hrt_data"}, {"arrows": "to", "from": "ZulKarn60856009", "to": "airlangga_hrt_data"}, {"arrows": "to", "from": "blegur_eka2449", "to": "airlangga_hrt_data"}, {"arrows": "to", "from": "lihin4343", "to": "airlangga_hrt_data"}, {"arrows": "to", "from": "Priyantoro2321", "to": "airlangga_hrt_data"}, {"arrows": "to", "from": "Singgih29537743", "to": "airlangga_hrt_data"}, {"arrows": "to", "from": "kvltrl", "to": "airlangga_hrt_data"}, {"arrows": "to", "from": "DistyaDiraS", "to": "airlangga_hrt_data"}, {"arrows": "to", "from": "Adefitria90", "to": "airlangga_hrt_data"}, {"arrows": "to", "from": "IvanMangunsong1", "to": "airlangga_hrt_data"}, {"arrows": "to", "from": "aniesbaswedan_data", "to": "syaikhu_ahmad"}, {"arrows": "to", "from": "aniesbaswedan_data", "to": "PDemokrat"}, {"arrows": "to", "from": "aniesbaswedan_data", "to": "bawa_ide"}, {"arrows": "to", "from": "aniesbaswedan_data", "to": "infoBMKG"}, {"arrows": "to", "from": "aniesbaswedan_data", "to": "AgusYudhoyono"}, {"arrows": "to", "from": "aniesbaswedan_data", "to": "NasDem"}, {"arrows": "to", "from": "aniesbaswedan_data", "to": "c40cities"}, {"arrows": "to", "from": "aniesbaswedan_data", "to": "jalahoaks"}, {"arrows": "to", "from": "aniesbaswedan_data", "to": "ArizaPatria"}, {"arrows": "to", "from": "aniesbaswedan_data", "to": "tamanhutandki"}, {"arrows": "to", "from": "aniesbaswedan_data", "to": "itdpindonesia"}, {"arrows": "to", "from": "aniesbaswedan_data", "to": "BappedaDKI"}, {"arrows": "to", "from": "aniesbaswedan_data", "to": "pembsaranajaya"}, {"arrows": "to", "from": "aniesbaswedan_data", "to": "dinkesJKT"}, {"arrows": "to", "from": "aniesbaswedan_data", "to": "dkpkpjakarta"}, {"arrows": "to", "from": "aniesbaswedan_data", "to": "KANSAR_JAKARTA"}, {"arrows": "to", "from": "aniesbaswedan_data", "to": "usembassyjkt"}, {"arrows": "to", "from": "aniesbaswedan_data", "to": "Disdik_DKI"}, {"arrows": "to", "from": "aniesbaswedan_data", "to": "humasjakfire"}, {"arrows": "to", "from": "aniesbaswedan_data", "to": "KabupatenP1000"}, {"arrows": "to", "from": "Ahmad60847Ahmad", "to": "aniesbaswedan_data"}, {"arrows": "to", "from": "AndangLand43004", "to": "aniesbaswedan_data"}, {"arrows": "to", "from": "AbdulSyuku21391", "to": "aniesbaswedan_data"}, {"arrows": "to", "from": "NuraisyahR47262", "to": "aniesbaswedan_data"}, {"arrows": "to", "from": "bangjalu_23", "to": "aniesbaswedan_data"}, {"arrows": "to", "from": "Afdal_Maruf89", "to": "aniesbaswedan_data"}, {"arrows": "to", "from": "MukhamadFadli", "to": "aniesbaswedan_data"}, {"arrows": "to", "from": "Maryani00035048", "to": "aniesbaswedan_data"}, {"arrows": "to", "from": "IwanShogon65172", "to": "aniesbaswedan_data"}, {"arrows": "to", "from": "12345678ajdh", "to": "aniesbaswedan_data"}, {"arrows": "to", "from": "Angkringan2410", "to": "aniesbaswedan_data"}, {"arrows": "to", "from": "BilalPane97", "to": "aniesbaswedan_data"}, {"arrows": "to", "from": "praindra419546", "to": "aniesbaswedan_data"}, {"arrows": "to", "from": "AgusSet44959869", "to": "aniesbaswedan_data"}, {"arrows": "to", "from": "KusmanaMohamad", "to": "aniesbaswedan_data"}, {"arrows": "to", "from": "AgafurP42815", "to": "aniesbaswedan_data"}, {"arrows": "to", "from": "MarsukiZaini", "to": "aniesbaswedan_data"}, {"arrows": "to", "from": "alexbuz123", "to": "aniesbaswedan_data"}, {"arrows": "to", "from": "RudiHar21943648", "to": "aniesbaswedan_data"}, {"arrows": "to", "from": "magevalir0011", "to": "aniesbaswedan_data"}, {"arrows": "to", "from": "ganjarpranowo_data", "to": "ListyoSigitP"}, {"arrows": "to", "from": "ganjarpranowo_data", "to": "YahyaCStaquf"}, {"arrows": "to", "from": "ganjarpranowo_data", "to": "iamspecialized"}, {"arrows": "to", "from": "ganjarpranowo_data", "to": "bikerumor"}, {"arrows": "to", "from": "ganjarpranowo_data", "to": "bikeradar"}, {"arrows": "to", "from": "ganjarpranowo_data", "to": "cyclingweekly"}, {"arrows": "to", "from": "ganjarpranowo_data", "to": "Cyclingnewsfeed"}, {"arrows": "to", "from": "ganjarpranowo_data", "to": "ZoobdooNFT"}, {"arrows": "to", "from": "ganjarpranowo_data", "to": "NPCIJateng"}, {"arrows": "to", "from": "ganjarpranowo_data", "to": "puanmaharani_ri"}, {"arrows": "to", "from": "ganjarpranowo_data", "to": "gibran_tweet"}, {"arrows": "to", "from": "ganjarpranowo_data", "to": "FaheemYounus"}, {"arrows": "to", "from": "ganjarpranowo_data", "to": "kominfo_srg"}, {"arrows": "to", "from": "ganjarpranowo_data", "to": "gembongITB"}, {"arrows": "to", "from": "ganjarpranowo_data", "to": "reskrimsusjtg"}, {"arrows": "to", "from": "ganjarpranowo_data", "to": "penkopassus"}, {"arrows": "to", "from": "ganjarpranowo_data", "to": "_TNIAL_"}, {"arrows": "to", "from": "ganjarpranowo_data", "to": "mprgoid"}, {"arrows": "to", "from": "ganjarpranowo_data", "to": "kemendagri"}, {"arrows": "to", "from": "ganjarpranowo_data", "to": "BPIPRI"}, {"arrows": "to", "from": "cunkku1410", "to": "ganjarpranowo_data"}, {"arrows": "to", "from": "andrienrfzy26", "to": "ganjarpranowo_data"}, {"arrows": "to", "from": "MalaYoongi", "to": "ganjarpranowo_data"}, {"arrows": "to", "from": "clsheeaa", "to": "ganjarpranowo_data"}, {"arrows": "to", "from": "Faiqo_himma", "to": "ganjarpranowo_data"}, {"arrows": "to", "from": "galihsptr76", "to": "ganjarpranowo_data"}, {"arrows": "to", "from": "WungkulYandi", "to": "ganjarpranowo_data"}, {"arrows": "to", "from": "kowilarang", "to": "ganjarpranowo_data"}, {"arrows": "to", "from": "cin166805838402", "to": "ganjarpranowo_data"}, {"arrows": "to", "from": "jamaludin260601", "to": "ganjarpranowo_data"}, {"arrows": "to", "from": "Adeline1881", "to": "ganjarpranowo_data"}, {"arrows": "to", "from": "MaarifM82151", "to": "ganjarpranowo_data"}, {"arrows": "to", "from": "Darapermat80402", "to": "ganjarpranowo_data"}, {"arrows": "to", "from": "GalihFarma38658", "to": "ganjarpranowo_data"}, {"arrows": "to", "from": "subang_kot51216", "to": "ganjarpranowo_data"}, {"arrows": "to", "from": "DyazJavu", "to": "ganjarpranowo_data"}, {"arrows": "to", "from": "lestari01_gia", "to": "ganjarpranowo_data"}, {"arrows": "to", "from": "sultanasep157", "to": "ganjarpranowo_data"}, {"arrows": "to", "from": "Ayyuutty", "to": "ganjarpranowo_data"}, {"arrows": "to", "from": "hanya_baca", "to": "ganjarpranowo_data"}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+                      network.on("stabilizationProgress", function(params) {
+                          document.getElementById('loadingBar').removeAttribute("style");
+                          var maxWidth = 496;
+                          var minWidth = 20;
+                          var widthFactor = params.iterations/params.total;
+                          var width = Math.max(minWidth,maxWidth * widthFactor);
+                          document.getElementById('bar').style.width = width + 'px';
+                          document.getElementById('text').innerHTML = Math.round(widthFactor*100) + '%';
+                      });
+                      network.once("stabilizationIterationsDone", function() {
+                          document.getElementById('text').innerHTML = '100%';
+                          document.getElementById('bar').style.width = '496px';
+                          document.getElementById('loadingBar').style.opacity = 0;
+                          // really clean the dom element
+                          setTimeout(function () {document.getElementById('loadingBar').style.display = 'none';}, 500);
+                      });
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>
