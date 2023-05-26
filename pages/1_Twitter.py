@@ -806,13 +806,124 @@ with tab2:
 
 
 ################################# SENTIMENT ANALYSIS PER USER PER FILES  ##############################
+    def load_and_preprocess_data(file_path):
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+
+        # Preprocess the text (e.g., lowercase, tokenization, stopwords removal, etc.)
+        preprocessed_text_data = []
+        stop_words = set(stopwords.words('indonesian'))
+        stemmer = StemmerFactory().create_stemmer()
+
+        for tweet_data in data['data']:
+            text = tweet_data['Text']
+            user = tweet_data['User Name']  # Get the user name
+
+            # Convert text to lowercase
+            text = text.lower()
+
+            # Tokenize the text
+            tokens = word_tokenize(text)
+
+            # Remove stopwords and perform stemming
+            processed_tokens = [stemmer.stem(token) for token in tokens if token not in stop_words]
+
+            # Append the processed tokens and the user to the preprocessed text data
+            preprocessed_text_data.append((processed_tokens, user))
+
+        # Return the preprocessed text data
+        return preprocessed_text_data
+
+       # Perform sentiment analysis per user
+    def perform_sentiment_analysis_per_user(text_data):
+        # Initialize the VADER sentiment intensity analyzer
+        sia = SentimentIntensityAnalyzer()
+
+        # Create a dictionary to store sentiment scores per user
+        user_sentiment_scores = {}
+
+        # Perform sentiment analysis on each text per user
+        for text, user in text_data:
+            sentiment_score = sia.polarity_scores(' '.join(text))
+
+            # Add the sentiment score to the user's scores
+            if user not in user_sentiment_scores:
+                user_sentiment_scores[user] = {
+                    'positive': [],
+                    'negative': [],
+                    'neutral': [],
+                    'compound': []
+                }
+
+            user_sentiment_scores[user]['positive'].append(sentiment_score['pos'])
+            user_sentiment_scores[user]['negative'].append(sentiment_score['neg'])
+            user_sentiment_scores[user]['neutral'].append(sentiment_score['neu'])
+            user_sentiment_scores[user]['compound'].append(sentiment_score['compound'])
+
+        # Calculate the average sentiment scores per user
+        user_sentiment_scores_avg = {}
+        for user, scores in user_sentiment_scores.items():
+            user_sentiment_scores_avg[user] = {
+                'positive': np.mean(scores['positive']),
+                'negative': np.mean(scores['negative']),
+                'neutral': np.mean(scores['neutral']),
+                'compound': np.mean(scores['compound'])
+            }
+
+        # Convert the sentiment scores to a DataFrame
+        df_sentiment_per_user = pd.DataFrame.from_dict(user_sentiment_scores_avg, orient='index')
+
+        # Return the DataFrame with sentiment scores per user
+        return df_sentiment_per_user
+
+    # Main Streamlit app
+    st.title("Sentiment Analysis per user with VADER for Bahasa Indonesia")
+
+    # Folder path containing the JSON files
+    folder_path = "twitkeys"
+
+    # Get the list of JSON files in the folder
+    file_list = [file_name for file_name in os.listdir(folder_path) if file_name.endswith('.json')]
+
+    # Select files
+    selected_files = st.multiselect("Select Files", file_list, default=file_list[:1], key="file_selector_sent")
+
+    # Iterate over the selected files
+    for file_name in selected_files:
+        # List to store preprocessed text data from the current file
+        preprocessed_text_data = []
+
+        # File path of the current file
+        file_path = os.path.join(folder_path, file_name)
+
+        # Load and preprocess the text data from the file
+        text_data = load_and_preprocess_data(file_path)
+
+        # Append the preprocessed text data to the list
+        preprocessed_text_data.extend(text_data)
+
+        # Perform sentiment analysis per user on the preprocessed text data
+        df_sentiment_per_user = perform_sentiment_analysis_per_user(preprocessed_text_data)
+
+        # Display the sentiment analysis results per user
+        st.subheader(f"Sentiment Analysis per User: {file_name}")
+        st.dataframe(df_sentiment_per_user)
+
+        # Plot the sentiment scores per user as a bar chart
+        ax = df_sentiment_per_user.plot(kind='bar', rot=0)
+        plt.xlabel('User')
+        plt.ylabel('Sentiment Score')
+        plt.title(f"Sentiment Analysis per User: {file_name}")
+        plt.xticks(rotation='vertical')
+        plt.tight_layout()
+
+        # Modify the text of user in the bar chart
+        for p in ax.patches:
+            ax.annotate(str(round(p.get_height(), 2)), (p.get_x() + p.get_width() / 2., p.get_height()),
+                        ha='center', va='center', xytext=(0, 5), textcoords='offset points', fontsize=6)
+
+        st.pyplot(plt)
     
-    
-
-
-
-
-
 
 ##################################################################
 with tab3:
