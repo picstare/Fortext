@@ -14,7 +14,7 @@ from pyvis.network import Network as net
 import tweepy
 from streamlit_tags import st_tags
 from json import JSONEncoder
-import PIL.Image
+import PIL
 import time
 import nltk
 import gensim
@@ -27,6 +27,8 @@ from nltk.stem import WordNetLemmatizer
 import pyLDAvis.gensim
 from matplotlib import font_manager, mathtext
 from pathlib import Path
+
+nltk.download('vader_lexicon')
 
 
 consumer_key = "1Hov50UKDBETZmY1wR9zkE3Q7"

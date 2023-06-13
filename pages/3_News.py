@@ -1,5 +1,4 @@
 import streamlit as st
-from newsapi import NewsApiClient
 import json
 import pandas as pd
 import numpy as np
@@ -11,7 +10,6 @@ import re
 import gensim
 from nltk import WordNetLemmatizer
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
-from googletrans import Translator, constants
 from gensim.models.ldamodel import LdaModel
 import gensim.corpora as corpora
 import folium
@@ -58,10 +56,6 @@ nltk.download('stopwords')
 
 # Define the punctuation symbols
 punctuation = "!\"$%&'()*+,-./:;<=>?[\\]^_`{|}~•@"
-
-# newsapi = NewsApiClient(api_key='28117c7eb02e41088ba0202989e52b20')
-# newsdatapath='newsdata'
-
 
 
 st.set_page_config(page_title='Forteks | News Analysis', page_icon=':newspaper:', layout='wide')
@@ -142,10 +136,13 @@ with tab1:
     # Read and concatenate the data from all files
     for file in files:
         file_path = os.path.join(folder_path, file)
-        with open(file_path, "r") as f:
-            data = json.load(f)
-            temp_df = analyze_data(data, file)  # Call the analyze_data function
-            df = pd.concat([df, temp_df], ignore_index=True)
+        try:
+            with open(file_path, "r") as f:
+                data = json.load(f)
+                temp_df = analyze_data(data, file)  # Call the analyze_data function
+                df = pd.concat([df, temp_df], ignore_index=True)
+        except json.JSONDecodeError:
+            continue
 
     # Convert the "date" column to datetime type with timezone-aware values
     df['date'] = pd.to_datetime(df['date'], errors='coerce', utc=True)
@@ -213,10 +210,13 @@ with tab1:
     # Read and concatenate the data from all files
     for file in files:
         file_path = os.path.join(folder_path, file)
-        with open(file_path, "r") as f:
-            data = json.load(f)
-            temp_df = analyze_data(data, file)  # Call the analyze_data function
-            df = pd.concat([df, temp_df], ignore_index=True)
+        try:
+            with open(file_path, "r") as f:
+                data = json.load(f)
+                temp_df = analyze_data(data, file)  # Call the analyze_data function
+                df = pd.concat([df, temp_df], ignore_index=True)
+        except json.JSONDecodeError:
+            continue
 
     # Convert the "date" column to datetime type with timezone-aware values
     df['date'] = pd.to_datetime(df['date'], errors='coerce', utc=True)
