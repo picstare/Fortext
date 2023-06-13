@@ -10,17 +10,13 @@ from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import seaborn as sns
 import networkx as nx
-# from pyvis.network import Network
 from pyvis.network import Network as net
 import tweepy
 from streamlit_tags import st_tags
 from json import JSONEncoder
-import PIL
 import PIL.Image
 import time
 import nltk
-nltk.download('stopwords')
-nltk.download('punkt')
 import gensim
 import pyLDAvis.gensim_models as gensimvis
 import pyLDAvis
@@ -29,8 +25,21 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 import pyLDAvis.gensim
+from matplotlib import font_manager, mathtext
+from pathlib import Path
 
 
+consumer_key = "1Hov50UKDBETZmY1wR9zkE3Q7"
+consumer_secret = "lAAcJVSDE1Oyc1BuOmxJNN4D575NkHQcg3hEa5zeurrGwCpXH0"
+access_token = "16645853-jRxQql8XCzcaWsBSTeA3eutXPA5xRcHxqRHDgx6m9"
+access_token_secret = "STmNDeF9BX33PTYuE18vPq7yndA4okKroeq9LXX6FV2gk"
+bearer_token = 'AAAAAAAAAAAAAAAAAAAAALMe9wAAAAAAN%2BggvuMVDLKLIEX3Kk%2B8nOSxH88%3DiBMoMLAjE4JuPUKzRyZjYbs5zRZ82uZk9T89YCBgKkeXmgbKY5'
+
+accounts = []
+auth = tweepy.OAuth1UserHandler(consumer_key=consumer_key, consumer_secret=consumer_secret, access_token=access_token, access_token_secret=access_token_secret)
+# auth.set_access_token(, 'ph47iEpbfD4USmwynPCL1LLNtl7f9seLovjIHOUqwTuQq')
+api = tweepy.API(auth)
+client = tweepy.Client(bearer_token=bearer_token)
 
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -95,16 +104,26 @@ with tab1:
 
     container1=st.container()
     with container1:
-        # Get a list of files in the folder
-        # Specify the directory where the JSON files are located
         folder_path = "twittl"
         files = os.listdir(folder_path)
-        num_files = min(4, len(files))  # Limit to first 4 files, or all files if there are fewer than 4
+
+        # Get the modification times of the files
+        file_times = [(f, os.path.getmtime(os.path.join(folder_path, f))) for f in files]
+
+        # Sort the files based on modification time in descending order
+        sorted_files = sorted(file_times, key=lambda x: x[1], reverse=True)
+
+        # Select the four newest files
+        num_files = min(4, len(sorted_files))
+        newest_files = [f[0] for f in sorted_files[:num_files]]
+
+        # Update the 'files' variable with the names of the newest files
+        files = newest_files
 
         if len(files) > 0:
             # Create a Streamlit column for each file
             cols = st.columns(num_files)
-            
+
             for i, col in enumerate(cols):
                 # Check if the file is in JSON format
                 if i < num_files and files[i].endswith('.json'):
@@ -134,6 +153,7 @@ with tab1:
         ######################################CHART TIME SERIES#######################
 
         st.header("TIME SERIES ANALYSIS OF THE KEY PERSONs")
+        
 
         files = [os.path.join(folder_path, f) for f in os.listdir(folder_path) if f.endswith('.json')]
         # data = []
@@ -485,7 +505,7 @@ with tab2:
         ax.barh(y_pos, centrality_scores)
         ax.set_xlabel('Degree Centrality')
         ax.set_ylabel('Top Actors')
-        ax.set_title('Top Actors based on Degree Centrality')
+        ax.set_title('Top Main Actors')
         ax.set_yticks(y_pos)
         ax.set_yticklabels(top_actors)
         plt.tight_layout()
@@ -596,7 +616,7 @@ with tab2:
 
 
 ############################VISUGRAPJH###########################
-    colviz1, colviz2, colviz3, colviz4=st.tabs(['Social Network','Degree Centrality', 'Betweenness Centrality', 'Closeness_Centrality'])
+    colviz1, colviz2, colviz3, colviz4=st.tabs(['Social Network','Aktor Utama', 'Aktor Penjembatan', 'Aktor Pendukung'])
     with colviz1:
          visualize_social_network(selected_G)
         
@@ -705,7 +725,7 @@ with tab2:
         st.components.v1.html(html_string, height=800, width=1500, scrolling=False)
 
 
-#################################################################
+################################ SENTIMENT ANALYSIS#################################
 
 
 
@@ -920,9 +940,232 @@ with tab2:
         # Modify the text of user in the bar chart
         for p in ax.patches:
             ax.annotate(str(round(p.get_height(), 2)), (p.get_x() + p.get_width() / 2., p.get_height()),
-                        ha='center', va='center', xytext=(0, 5), textcoords='offset points', fontsize=6)
+                        ha='center', va='center', xytext=(0, 5), textcoords='offset points', fontsize=5)
 
         st.pyplot(plt)
+    
+
+######################### LOCATION ##############################
+
+   
+    import folium
+    from streamlit_folium import folium_static, st_folium
+    from geopy.geocoders import Nominatim
+    from geopy.exc import GeocoderUnavailable
+    
+    
+    # Create a geolocator object
+    geolocator = Nominatim(user_agent='twitter_map_app')
+
+    # Define a function to perform geocoding with caching
+    @st.cache_data
+    def geocode_location(location):
+        try:
+            location_data = geolocator.geocode(location, timeout=5)  # Increase the timeout value as needed
+            if location_data:
+                return location_data.latitude, location_data.longitude
+        except GeocoderUnavailable:
+            st.warning(f"Geocoding service is unavailable for location: {location}")
+        return None, None
+
+    # Get the file paths of all JSON files in the "twitkeys" folder
+    file_paths = glob.glob('twitkeys/*.json')
+
+    # Sort the file paths by modification time (newest to oldest)
+    file_paths.sort(key=os.path.getmtime, reverse=True)
+
+    # Select the four newest files
+    default_files = file_paths[:1]
+
+    # Allow users to select multiple files using a multiselect widget
+    selected_files = st.multiselect("Select JSON Files", file_paths, default=default_files)
+
+    # Define variables to store the min/max latitude and longitude
+    min_latitude = float('inf')
+    max_latitude = float('-inf')
+    min_longitude = float('inf')
+    max_longitude = float('-inf')
+
+    # Iterate over the selected files
+    for file_path in selected_files:
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+
+        user_data = data['data']
+
+        # Perform geocoding for each user location
+        for user in user_data:
+            location = user.get('User Location')
+            if location:
+                latitude, longitude = geocode_location(location)
+                user['Latitude'] = latitude
+                user['Longitude'] = longitude
+                time.sleep(1)  # Add a 1-second delay between requests
+
+                # Update the min/max latitude and longitude
+                if latitude is not None:
+                    min_latitude = min(min_latitude, latitude)
+                    max_latitude = max(max_latitude, latitude)
+                if longitude is not None:
+                    min_longitude = min(min_longitude, longitude)
+                    max_longitude = max(max_longitude, longitude)
+
+    # Calculate the center latitude and longitude
+    center_latitude = (min_latitude + max_latitude) / 2
+    center_longitude = (min_longitude + max_longitude) / 2
+
+    # Create a Folium map object
+    m = folium.Map(location=[center_latitude, center_longitude], zoom_start=2)
+
+    # Add markers to the map
+    for user in user_data:
+        latitude = user.get('Latitude')
+        longitude = user.get('Longitude')
+        user_name = user.get('User Name')
+
+        if latitude is not None and longitude is not None:
+            popup = f"User: {user_name}\nLocation: {user['User Location']}"
+            folium.Marker([latitude, longitude], popup=popup, tooltip=user_name).add_to(m)
+
+    # Display the map for the current file
+    st.header(f"User Map: {file_path}")
+    st_folium(m, width=1500, height=600)
+
+#################################################################
+    from sklearn.model_selection import train_test_split
+    from sklearn.feature_extraction.text import CountVectorizer
+    from sklearn.preprocessing import LabelEncoder
+    from sklearn.metrics import classification_report
+    from sklearn.ensemble import GradientBoostingClassifier
+    from sklearn.ensemble import GradientBoostingClassifier
+    import joblib
+    from sklearn.metrics import accuracy_score
+    import plotly.express as px
+    
+    import numpy as np
+
+    st.title("Gender Prediction from Twitter Data")
+    st.header("Predicted Gender")
+    
+    def preprocess_tweet(tweet, training_columns):
+        processed_tweet = {
+            'User Name': str(tweet[0]),
+            'User Description': str(tweet[1]).lower() if tweet[1] else '',
+            'Text': str(tweet[2]).lower(),
+        }
+
+        processed_tweet = {k: float(v) if isinstance(v, str) and v.isnumeric() else v for k, v in processed_tweet.items()}
+        processed_tweet = pd.DataFrame(processed_tweet, index=[0])
+
+        # Perform one-hot encoding on the categorical variables
+        processed_tweet_encoded = pd.get_dummies(processed_tweet)
+        processed_tweet_encoded = processed_tweet_encoded.reindex(columns=training_columns, fill_value=0)
+
+        return processed_tweet_encoded.values.flatten()
+
+    
+    def predict_gender(model, features, training_columns):
+        processed_tweet = preprocess_tweet(features, training_columns)
+        prediction = model.predict([processed_tweet])
+        return prediction[0]
+
+
+
+    dfout = pd.read_json('output1.json')
+
+    # st.dataframe(dfout)
+    # print ("DFOUT:",dfout)
+
+    # Prepare the data
+    if 'Gender' in dfout.columns:
+        X = dfout.drop('Gender', axis=1)
+    else:
+        X = dfout.copy()
+
+    if 'Gender' in dfout.columns:
+        y = dfout['Gender']
+    else:
+        # Handle the case when 'Gender' column is missing
+        # For example, you can print an error message or take appropriate action
+        st.write('Gender not in df.columns')
+
+    # Perform one-hot encoding on the categorical variables in X
+    X_encoded = pd.get_dummies(X)
+
+    # Get the training columns from the X_encoded DataFrame
+    training_columns = X_encoded.columns
+
+    # Split the data into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X_encoded, y, test_size=0.2, random_state=42)
+
+    # Create a Gradient Boosting Classifier model
+    model = GradientBoostingClassifier()
+
+    # Fit the model to the training data
+    model.fit(X_train, y_train)
+
+    # Predict the gender for the test data
+    y_pred = model.predict(X_test)
+
+    # Evaluate the model's performance
+    accuracy = accuracy_score(y_test, y_pred)
+    st.write('Accuracy:', accuracy)
+
+    # Save the trained model to a file
+    joblib.dump(model, 'modelgend.pkl')
+
+    # Get the file paths of all JSON files in the "twitkeys" folder
+    file_paths = glob.glob('twitkeys/*.json')
+
+    # Sort the file paths by modification time (newest to oldest)
+    file_paths.sort(key=os.path.getmtime, reverse=True)
+
+    # Allow users to select multiple files using a multiselect widget
+    
+    selected_files = st.multiselect("Select JSON Files", file_paths, default=file_paths[:4], key='gensel')
+
+    data_list = []
+
+    # Define the number of columns based on the number of selected files
+    num_columns = len(selected_files)
+
+    # Create a grid layout with the specified number of columns
+    columns = st.columns(num_columns)
+
+    for i, file_path in enumerate(selected_files):
+        with open(file_path, 'r') as file:
+            json_data = json.load(file)
+            data_list.extend(json_data["data"])
+
+        dfgend = pd.DataFrame(data_list)
+        # Drop irrelevant columns
+        columns_to_drop = ["User Screen Name", "User Location", "Hashtags", "Source", "in_reply_to_name", "mentioned_users",
+                        "Tweet URL", "Created At", "User Location", "Retweet Count", "Reply Count", "Mention Count",
+                        "Longitude", "Latitude", "Replies", "Retweeted Tweet", "Tweet ID", "Profile Image URL"]
+        dfgend = dfgend.drop(columns_to_drop, axis=1)
+        dfgend['Gender'] = ''
+
+        dfgend = dfgend.drop_duplicates(subset='User Name')
+
+        # Load the model from the output.json file
+        model = joblib.load('modelgend.pkl')
+
+        # Predict gender for each tweet
+        for index, tweet in dfgend.iterrows():
+            features = [tweet['User Name'], tweet['User Description'], tweet['Text']]
+            processed_tweet = preprocess_tweet(features, training_columns)
+            prediction = predict_gender(model, processed_tweet, training_columns)
+            dfgend.at[index, 'Gender'] = prediction
+
+        # Group by gender to get gender distribution
+        gender_counts = dfgend.groupby('Gender').size().reset_index(name='Count')
+
+        # Create a pie chart for gender distribution in the corresponding column
+        with columns[i]:
+            fig = px.pie(gender_counts, values='Count', names='Gender', title='Gender Distribution - ' + file_path)
+            st.plotly_chart(fig)
+
+
     
 
 ##################################################################
@@ -930,17 +1173,7 @@ with tab3:
     st.header("Data Mining")
     container3=st.container()
     with container3:
-        # consumer_key = "wtph1D9eE27h2pTwAfUUZFJGh"
-        # consumer_secret = "ueIvSjFVV6MkH7yKtC67ybi6qkPiV4xJun4CsBv8w22lwY6eTF"
-        # access_token = "16645853-1WS14NgT2p9m7sMH3s7xU4G5QRN2YBRFXXEYjgEnd"
-        # access_token_secret = "Csj5OhyNTUAZOxkBsWi9d7GHnwbQHkLIFgowiBda6lM1o"
-        bearer_token = 'AAAAAAAAAAAAAAAAAAAAALMe9wAAAAAAiRJ0vEKHtm8H4w5sW8HRCmjQ6AI%3D8aSrZUbXNvktB7zzus1GIF74g8wfOMlIKn8Obdy7mpgBoIvlXu'
-
-        accounts = []
-        auth = tweepy.OAuth1UserHandler('wtph1D9eE27h2pTwAfUUZFJGh', 'ueIvSjFVV6MkH7yKtC67ybi6qkPiV4xJun4CsBv8w22lwY6eTF')
-        auth.set_access_token('16645853-1WS14NgT2p9m7sMH3s7xU4G5QRN2YBRFXXEYjgEnd', 'Csj5OhyNTUAZOxkBsWi9d7GHnwbQHkLIFgowiBda6lM1o')
-        api = tweepy.API(auth)
-        client = tweepy.Client(bearer_token=bearer_token)
+       
           
         colta, coltb = st.columns([2, 2])
         with colta:
@@ -1035,8 +1268,10 @@ with tab3:
 
          
         with coltb:
+
             
-           
+                
+            
             with st.form(key="tkeysform"):
                 # Add tag input for keywords
                 keywords = st_tags(
@@ -1050,33 +1285,35 @@ with tab3:
 
                 # Add search button within the form
                 search_button = st.form_submit_button(label="Search")
-
                 if search_button and keywords:
                     for keyword in keywords:
                         results = []
-                        
+
                         # Perform search for each keyword
                         tweets = client.search_recent_tweets(
                             query=keyword,
                             tweet_fields=[
-                                'context_annotations', 'text', 'created_at', 'entities', 'source', 'geo', 'public_metrics', 'referenced_tweets'
+                                'context_annotations', 'text', 'created_at', 'entities', 'source', 'geo', 'public_metrics',
+                                'referenced_tweets'
                             ],
                             user_fields=['name', 'username', 'profile_image_url', 'description', 'location'],
                             expansions=[
                                 'author_id', 'referenced_tweets.id', 'referenced_tweets.id.author_id',
                                 'in_reply_to_user_id', 'entities.mentions.username', 'geo.place_id'
                             ],
-                            max_results=10
+                            max_results=20
                         )
-                        
+
                         # Get users list from the includes object
                         users = {u["id"]: u for u in tweets.includes['users']}
-                        
+
                         for tweet in tweets.data:
                             # Initialize 'place_name' and 'in_reply_to_name' variables
                             place_name = ''
                             in_reply_to_name = ''
-                            
+                            # longitude = None
+                            # latitude = None
+
                             user_id = tweet.author_id
                             if user_id in users:
                                 user = users[user_id]
@@ -1086,12 +1323,12 @@ with tab3:
                                 user_description = user['description']
                                 user_location = user.get('location', None)
                                 retweeted_user = None  # Initialize the variable
-                                
+
                                 # Extract retweet, mention, and reply information
                                 retweet_count = tweet.public_metrics['retweet_count']
                                 reply_count = tweet.public_metrics['reply_count']
                                 mention_count = 0
-                                
+
                                 mentioned_users = []
 
                                 if 'entities' in tweet and 'mentions' in tweet.entities:
@@ -1117,51 +1354,71 @@ with tab3:
                                         if referenced_tweet['type'] == 'retweeted':
                                             retweet_count += 1
                                             retweeted_tweet_id = referenced_tweet['id']
-                                            retweeted_tweet = client.get_tweet(id=retweeted_tweet_id, tweet_fields=['text', 'author_id'])
-                                            if retweeted_tweet:
-                                                retweeted_tweet_data = retweeted_tweet.data
-                                                retweeted_tweet_text = retweeted_tweet_data['text']
-                                                retweeted_tweet_author_id = retweeted_tweet_data['author_id']
-                                                
-                                                # Get retweeted user's information
-                                                if retweeted_tweet_author_id in users:
-                                                    retweeted_user = users[retweeted_tweet_author_id]
-                                                    retweeted_user_name = retweeted_user['name']
-                                                    retweeted_user_screen_name = retweeted_user['username']
+                                            try:
+                                                retweeted_tweet = client.get_tweet(id=retweeted_tweet_id,
+                                                                                tweet_fields=['text', 'author_id'])
+                                                if retweeted_tweet:
+                                                    retweeted_tweet_data = retweeted_tweet.data
+                                                    retweeted_tweet_text = retweeted_tweet_data['text']
+                                                    retweeted_tweet_author_id = retweeted_tweet_data['author_id']
 
-                                                # Add retweet information to tweet_data
-                                                tweet_data['Retweeted Tweet'] = {
-                                                    'Text': retweeted_tweet_text,
-                                                    'Author Name': retweeted_user_name,
-                                                    'Author Screen Name': retweeted_user_screen_name
-                                                }
+                                                    # Get retweeted user's information
+                                                    if retweeted_tweet_author_id in users:
+                                                        retweeted_user = users[retweeted_tweet_author_id]
+                                                        retweeted_user_name = retweeted_user['name']
+                                                        retweeted_user_screen_name = retweeted_user['username']
+
+                                                    # Add retweet information to tweet_data
+                                                    tweet_data['Retweeted Tweet'] = {
+                                                        'Text': retweeted_tweet_text,
+                                                        'Author Name': retweeted_user_name,
+                                                        'Author Screen Name': retweeted_user_screen_name
+                                                    }
+                                            except Exception as e:
+                                                print(f"Error retrieving retweeted tweet: {e}")
 
                                         elif referenced_tweet['type'] == 'replied_to':
                                             replied_tweet_id = referenced_tweet['id']
-                                            replied_tweet = client.get_tweet(id=replied_tweet_id, tweet_fields=['author_id'])
-                                            
-                                            if replied_tweet:
-                                                replied_user_id = replied_tweet.data['author_id']
-                                                replied_user = users.get(replied_user_id, None)
-                                                
-                                                if replied_user:
-                                                    replied_user_screen_name = replied_user['username']
-                                                    replies.append({
-                                                        'User Screen Name': replied_user_screen_name
-                                                    })
-                                # Add replies list to tweet_data
-                                tweet_data['Replies'] = replies if replies else []                                   
+                                            try:
+                                                replied_tweet = client.get_tweet(id=replied_tweet_id, tweet_fields=['author_id'])
+                                                if replied_tweet:
+                                                    replied_user_id = replied_tweet.data['author_id']
+                                                    replied_user = users.get(replied_user_id, None)
+
+                                                    if replied_user:
+                                                        replied_user_screen_name = replied_user['username']
+                                                        replies.append({
+                                                            'User Screen Name': replied_user_screen_name
+                                                        })
+                                            except Exception as e:
+                                                print(f"Error retrieving replied tweet: {e}")
+
+                                 # Get latitude and longitude from place_id
+                                if 'geo' in tweet and 'place_id' in tweet.geo:
+                                    place_id = tweet.geo['place_id']
+                                    try:
+                                        place = client.get_place(id=place_id, place_fields=['geo'])
+                                        if place and 'geo' in place:
+                                            latitude = place.geo['coordinates'][0]
+                                            longitude = place.geo['coordinates'][1]
+                                    except Exception as e:
+                                        print(f"Error retrieving place information: {e}")
+
+                                # Add longitude and latitude to tweet_data
+                                tweet_data['Longitude'] = longitude if longitude else None
+                                tweet_data['Latitude'] = latitude if latitude else None
+
                                 # Get like count and quote count
                                 like_count = tweet.public_metrics['like_count']
                                 quote_count = tweet.public_metrics['quote_count']
-                                
+
                                 if 'entities' in tweet and 'hashtags' in tweet.entities:
                                     hashtags = [tag['tag'] for tag in tweet.entities['hashtags']]
                                 else:
                                     hashtags = []
-                                
+
                                 full_text = tweet.text
-                                
+
                                 # Extract relevant fields from tweet and user
                                 tweet_data = {
                                     'User Name': user_name,
@@ -1181,24 +1438,26 @@ with tab3:
                                     'in_reply_to_name': in_reply_to_name if in_reply_to_name else None,
                                     'mentioned_users': mentioned_users if mentioned_users else [],
                                 }
-                                
+
+                                # Add replies list to tweet_data
+                                tweet_data['Replies'] = replies if replies else []
+
                                 results.append(tweet_data)
-                                
-                            # Create a directory if it doesn't exist
-                            os.makedirs("twitkeys", exist_ok=True)
-                            
-                            # Save the results in a JSON file named with the keyword
-                            output = {"data": results}
-                            # Save the results in a JSON file named with the keyword
-                            file_path = os.path.join("twitkeys", f"{keyword}.json")
+
+                        # Create a directory if it doesn't exist
+                        os.makedirs("twitkeys", exist_ok=True)
+
+                        # Save the results in a JSON file named with the keyword
+                        file_path = os.path.join("twitkeys", f"{keyword}.json")
+                        try:
                             if os.path.exists(file_path):
                                 # Load existing data from the file
                                 with open(file_path, 'r') as json_file:
                                     existing_data = json.load(json_file)
-                                    
+
                                 # Append new data to the existing data
                                 existing_data['data'].extend(results)
-                                
+
                                 # Write the combined data back to the file
                                 with open(file_path, 'w') as json_file:
                                     json.dump(existing_data, json_file, cls=DateTimeEncoder)
@@ -1207,6 +1466,9 @@ with tab3:
                                 output = {"data": results}
                                 with open(file_path, 'w') as json_file:
                                     json.dump(output, json_file, cls=DateTimeEncoder)
+                        except Exception as e:
+                            print(f"Error saving results to JSON file: {e}")
+
 
 
         colc, cold=st.columns([2,2])
