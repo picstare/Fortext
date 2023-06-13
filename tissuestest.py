@@ -24,7 +24,7 @@ class DateTimeEncoder(JSONEncoder):
         return super().default(o)
 
 # Set up Tweepy client
-bearer_token = 'AAAAAAAAAAAAAAAAAAAAALMe9wAAAAAAiRJ0vEKHtm8H4w5sW8HRCmjQ6AI%3D8aSrZUbXNvktB7zzus1GIF74g8wfOMlIKn8Obdy7mpgBoIvlXu'
+bearer_token = 'AAAAAAAAAAAAAAAAAAAAAN2QoAEAAAAAVJDVMnIlp5SOzQ7sDF9whqRk5zk%3DYJR7rwXSh1utXkl6thLwejvqlJh1kiyNpP3izvP5l3F93iJVfo'
 client = tweepy.Client(bearer_token=bearer_token)
 retweeted_tweet_id = None  # Declare the variable outside the if block
 
@@ -65,7 +65,7 @@ if search_button and keywords:
                 'author_id', 'referenced_tweets.id', 'referenced_tweets.id.author_id',
                 'in_reply_to_user_id', 'entities.mentions.username', 'geo.place_id'
             ],
-            max_results=10
+            max_results=5
         )
 
         # Get users list from the includes object

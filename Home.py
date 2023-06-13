@@ -5,38 +5,38 @@ from pathlib import Path
 from streamlit_extras.switch_page_button import switch_page
 from django.core.wsgi import get_wsgi_application
 
-# class User:
-#     def __init__(self, name):
-#         self.name = name
-#         self.saved_files = []
-#         self.queries = []
-#         self.records = []
+class User:
+    def __init__(self, name):
+        self.name = name
+        self.saved_files = []
+        self.queries = []
+        self.records = []
 
-#     def save_file(self, file):
-#         self.saved_files.append(file)
+    def save_file(self, file):
+        self.saved_files.append(file)
 
-#     def add_query(self, query):
-#         self.queries.append(query)
+    def add_query(self, query):
+        self.queries.append(query)
 
-#     def add_record(self, record):
-#         self.records.append(record)
+    def add_record(self, record):
+        self.records.append(record)
 
-#     def get_data(self):
-#         user_data = {
-#             "saved_files": self.saved_files,
-#             "queries": self.queries,
-#             "records": self.records
-#         }
+    def get_data(self):
+        user_data = {
+            "saved_files": self.saved_files,
+            "queries": self.queries,
+            "records": self.records
+        }
 
-#         # Filter out data that doesn't belong to the current user
-#         filtered_data = {}
-#         for key, value in user_data.items():
-#             if isinstance(value, list):
-#                 filtered_data[key] = [item for item in value if item["user"] == self.name]
-#             else:
-#                 filtered_data[key] = value
+        # Filter out data that doesn't belong to the current user
+        filtered_data = {}
+        for key, value in user_data.items():
+            if isinstance(value, list):
+                filtered_data[key] = [item for item in value if item["user"] == self.name]
+            else:
+                filtered_data[key] = value
 
-#         return filtered_data
+        return filtered_data
 
 
 st.set_page_config(
