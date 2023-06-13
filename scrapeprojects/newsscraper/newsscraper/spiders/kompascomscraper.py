@@ -1,38 +1,26 @@
 import re
-import scrapy
 from scrapy.spiders import SitemapSpider
 
 
 class KompascomscraperSpider(SitemapSpider):
     name = "kompascomscraper"
-    allowed_domains = ["kompas.com"]
-    sitemap_urls = ['https://www.kompas.com/sitemap.xml']
+    allowed_domains = ["kompas.com", "megapolitan.kompas.com", "internasional.kompas.com", "nasional.kompas.com", "news.kompas.com", "regional.kompas.com",
+                       "bandung.kompas.com", "sorotpolitik.kompas.com", "kilasdaerah.kompas.com", "kilaskementerian.kompas.com", "kilaskementerian.kompas.com/kemnaker",
+                       "kilasparlemen.kompas.com/news/", "sorotpolitik.kompas.com/web/","kilasdaerah.kompas.com/jawa-barat/","kilaskementerian.kompas.com/kemenkes/web", 
+                       "kilaskementerian.kompas.com/kemenko-perekonomian/web", "kilaskementerian.kompas.com/kemenkumham/web", "kilaskementerian.kompas.com/ditjen-ebtke/web",
+                        "kilaskementerian.kompas.com/kemenko-perekonomian/video","kilaskementerian.kompas.com/kemenparekraf/video", "surabaya.kompas.com","bola.kompas.com"]
+    
+    def __init__(self, query, *args, **kwargs):
+        super(KompascomscraperSpider, self).__init__(*args, **kwargs)
+        self.query = query
+
+        # Convert query to pattern with dashes
+        self.pattern = re.sub(r'\s+', '-', self.query)
+
+        self.sitemap_urls = ['https://www.kompas.com/sitemap.xml']
+        self.sitemap_rules = [(self.pattern, self.parse)]
 
     def parse(self, response):
-        query = getattr(self, 'query', None)
-        pattern = re.sub(r'\s+', '-', query) if query else None
-
-        sitemap_urls = response.xpath('//loc/text()').getall()
-
-        for sitemap_url in sitemap_urls:
-            yield scrapy.Request(url=sitemap_url, callback=self.parse_sitemap_item, meta={'pattern': pattern})
-
-    def parse_sitemap_item(self, response):
-        pattern = response.meta.get('pattern')
-        if pattern:
-            sitemap_rules = [(pattern, self.parse_article)]
-        else:
-            sitemap_rules = [('.*', self.parse_article)]
-
-        for rule in sitemap_rules:
-            rule_pattern, callback = rule
-            if re.search(rule_pattern, response.url):
-                callback_method = getattr(self, callback)
-                if callback_method:
-                    return callback_method(response)
-
-    def parse_article(self, response):
-        query = getattr(self, 'query', None)
         url = response.url
         print('Parsing article:', url)
 
@@ -45,12 +33,12 @@ class KompascomscraperSpider(SitemapSpider):
         tags = ''
 
         yield {
-            'query': query,  # Include the query field
+            'query': self.query,  # Include the query field
             'title': title,
-            'author': author,
-            'image_url': image_url,
             'date': date,
+            'image_url': image_url,
             'content': content,
+            'author': author,
             'tags': tags,
             'url': url,
         }
@@ -64,7 +52,7 @@ class KompascomscraperSpider(SitemapSpider):
 # class KompascomscraperSpider(SitemapSpider):
 #     name = "kompascomscraper"
 #     allowed_domains = ["kompas.com"]
-#     query = "ganjar pranowo"
+#     query = "anies baswedan"
 
 #     # Convert query to pattern with dashes
 #     pattern = re.sub(r'\s+', '-', query)
@@ -76,19 +64,23 @@ class KompascomscraperSpider(SitemapSpider):
 #         url = response.url
 #         print('Parsing article:', url)
 
-#         # Extract desired data from the article page
+#          # Extract desired data from the article page
 #         title = response.css('h1.read__title::text').get()
-#         author = response.css('.read__credit__item > div#penulis > a').get()
+#         author = response.css('.read__credit__item > div#penulis > a::text').get()
 #         image_url = response.css('.photo__wrap > img::attr(src)').get()
 #         date = response.css('.read__time::text').get()
 #         content = response.css('.read__content').get()
+#         tags = ''
 
 #         yield {
-#             'url': url,
+#             # 'query': query,  # Include the query field
 #             'title': title,
-#             'author': author,
-#             'image_url':image_url,
 #             'date': date,
+#             'image_url': image_url,
 #             'content': content,
+#             'author': author,
+#             'tags': tags,
+#             'url': url,
 #         }
+
 

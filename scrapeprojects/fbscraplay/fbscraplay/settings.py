@@ -1,4 +1,4 @@
-# Scrapy settings for newsscraper project
+# Scrapy settings for fbscraplay project
 #
 # For simplicity, this file contains only settings considered important or
 # commonly used. You can find more settings consulting the documentation:
@@ -7,17 +7,17 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = "newsscraper"
+BOT_NAME = "fbscraplay"
 
-SPIDER_MODULES = ["newsscraper.spiders"]
-NEWSPIDER_MODULE = "newsscraper.spiders"
+SPIDER_MODULES = ["fbscraplay.spiders"]
+NEWSPIDER_MODULE = "fbscraplay.spiders"
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = "newsscraper (+http://www.yourdomain.com)"
+#USER_AGENT = "fbscraplay (+http://www.yourdomain.com)"
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = False
+ROBOTSTXT_OBEY = True
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
@@ -45,16 +45,14 @@ ROBOTSTXT_OBEY = False
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 #SPIDER_MIDDLEWARES = {
-#    "newsscraper.middlewares.NewsscraperSpiderMiddleware": 543,
+#    "fbscraplay.middlewares.FbscraplaySpiderMiddleware": 543,
 #}
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-DOWNLOADER_MIDDLEWARES = {
-#    "newsscraper.middlewares.NewsscraperDownloaderMiddleware": 543,
-    'scrapy_proxy_pool.middlewares.ProxyPoolMiddleware': 610,
-    'scrapy_proxy_pool.middlewares.BanDetectionMiddleware': 620
-}
+#DOWNLOADER_MIDDLEWARES = {
+#    "fbscraplay.middlewares.FbscraplayDownloaderMiddleware": 543,
+#}
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
@@ -65,7 +63,7 @@ DOWNLOADER_MIDDLEWARES = {
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 #ITEM_PIPELINES = {
-#    "newsscraper.pipelines.NewsscraperPipeline": 300,
+#    "fbscraplay.pipelines.FbscraplayPipeline": 300,
 #}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -90,15 +88,6 @@ DOWNLOADER_MIDDLEWARES = {
 #HTTPCACHE_STORAGE = "scrapy.extensions.httpcache.FilesystemCacheStorage"
 
 # Set settings whose default value is deprecated to a future-proof value
-DOWNLOAD_DELAY = 2  # 2 seconds of delay
-RANDOMIZE_DOWNLOAD_DELAY = False # 
-PROXY_POOL_ENABLED = True
 REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"
 TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 FEED_EXPORT_ENCODING = "utf-8"
-# DOWNLOAD_HANDLERS = {
-#     "http": "scrapy_playwright.handler.ScrapyPlaywrightDownloadHandler",
-#     "https": "scrapy_playwright.handler.ScrapyPlaywrightDownloadHandler",
-# }
-
-PROXY_POOL_BAN_POLICY = 'newsscraper.policy.BanDetectionPolicyNotText'
