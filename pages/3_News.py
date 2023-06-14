@@ -14,10 +14,6 @@ from gensim.models.ldamodel import LdaModel
 import gensim.corpora as corpora
 import folium
 import plotly.graph_objs as go
-import altair as alt
-from altair import datum
-import seaborn as sns
-import seaborn.objects as so
 import dateparser
 
 # from gensim.utils import simple_preprocess
@@ -111,12 +107,13 @@ tab1, tab2= st.tabs([s.center(whitespace,"\u2001") for s in listTabs])
 
 with tab1:
    
-    # import pandas as pd
-    # import dateparser
-    # import json
-    # import os
-    # import altair as alt
-    # import streamlit as st
+
+    import pandas as pd
+    import dateparser
+    import json
+    import os
+    import streamlit as st
+    import matplotlib.pyplot as plt
 
     def analyze_data(json_data, file_name):
         df = pd.DataFrame(json_data)
@@ -172,18 +169,23 @@ with tab1:
     filtered_df['time_group'] = filtered_df['date'].dt.floor('H')
     grouped_df = filtered_df.groupby(['query', 'time_group']).size().reset_index(name='count')
 
-    # Create the line chart using Altair with increased size
-    chart = alt.Chart(grouped_df).mark_line().encode(
-        x=alt.X('time_group:T', title='Date'),
-        y=alt.Y('count:Q', title='Count'),
-        color='query:N'
-    ).properties(
-        width=1000,  # Set the chart width
-        height=500  # Set the chart height
-    )
+    # Create the line chart using pandas plot function
+    fig, ax = plt.subplots()
+    for query in selected_queries:
+        query_data = grouped_df[grouped_df['query'] == query]
+        ax.plot(query_data['time_group'], query_data['count'], label=query)
 
-    # Render the chart using Streamlit
-    st.altair_chart(chart)
+    # Configure the chart
+    ax.set_xlabel('Date', fontsize=10)
+    ax.set_ylabel('Count', fontsize=10)
+    ax.legend(fontsize=10)
+
+    # Set the font size of tick labels on both axes
+    ax.tick_params(axis='x', labelsize=7)
+    ax.tick_params(axis='y', labelsize=7)
+
+    # Display the chart
+    st.pyplot(fig)
 
     # Display the filtered DataFrame
     st.write(filtered_df)

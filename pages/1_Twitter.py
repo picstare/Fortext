@@ -618,7 +618,7 @@ with tab2:
 
 
 ############################VISUGRAPJH###########################
-    colviz1, colviz2, colviz3, colviz4=st.tabs(['Social Network','Aktor Utama', 'Aktor Penjembatan', 'Aktor Pendukung'])
+    colviz1, colviz2, colviz3, colviz4=st.tabs(['Social Network','Main Actors', 'Bridging Actors', 'Supporting Actors'])
     with colviz1:
          visualize_social_network(selected_G)
         
@@ -729,8 +729,6 @@ with tab2:
 
 ################################ SENTIMENT ANALYSIS#################################
 
-
-
     from nltk.sentiment import SentimentIntensityAnalyzer
     import numpy as np
 
@@ -765,6 +763,7 @@ with tab2:
         # Return the preprocessed text data
         return preprocessed_text_data
 
+
     # Function to perform sentiment analysis using VADER
     def perform_sentiment_analysis(text_data):
         # Initialize the VADER sentiment intensity analyzer
@@ -782,8 +781,9 @@ with tab2:
         # Return the DataFrame with sentiment scores
         return df_sentiment
 
+
     # Main Streamlit app
-    st.title("Sentiment Analysis with VADER for Bahasa Indonesia")
+    st.title("Sentiment Analysis")
 
     # Folder path containing the JSON files
     folder_path = "twitkeys"
@@ -792,10 +792,16 @@ with tab2:
     file_list = [file_name for file_name in os.listdir(folder_path) if file_name.endswith('.json')]
 
     # Select files
-    selected_files = st.multiselect("Select Files", file_list, default=file_list[:1], key="file_selector")
+    selected_files = st.multiselect("Select Files", file_list, default=file_list[:4], key="file_selector")
 
-    # Iterate over the selected files
-    for file_name in selected_files:
+    # Define the number of columns based on the number of selected files
+    num_columns = len(selected_files)
+
+    # Create a grid layout with the specified number of columns
+    columns = st.columns(num_columns)
+
+    # Iterate over the selected files and display sentiment analysis results and charts
+    for i, file_name in enumerate(selected_files):
         # List to store preprocessed text data from the current file
         preprocessed_text_data = []
 
@@ -811,20 +817,22 @@ with tab2:
         # Perform sentiment analysis on the preprocessed text data
         df_sentiment = perform_sentiment_analysis(preprocessed_text_data)
 
-        # Display the sentiment analysis results
-        st.subheader(f"Sentiment Analysis: {file_name}")
-        st.dataframe(df_sentiment)
-
         # Calculate the sentiment distribution for the current file
         sentiment_distribution = df_sentiment.mean().drop("compound")
 
-        # Plot the sentiment distribution as a pie chart
-        plt.figure()
-        plt.pie(sentiment_distribution.values, labels=sentiment_distribution.index, autopct='%1.1f%%', startangle=90)
-        plt.axis('equal')
-        plt.title(f"Sentiment Distribution: {file_name}")
-        plt.tight_layout()
-        st.pyplot(plt)
+        # Display the sentiment analysis results in the current column
+        with columns[i]:
+            st.subheader(f"Sentiment Analysis: {file_name}")
+            st.dataframe(df_sentiment)
+
+            # Plot the sentiment distribution as a pie chart
+            fig, ax = plt.subplots()
+            ax.pie(sentiment_distribution.values, labels=sentiment_distribution.index, autopct='%1.1f%%', startangle=90)
+            ax.axis('equal')
+            ax.set_title(f"Sentiment Distribution: {file_name}")
+
+            # Display the chart
+            st.pyplot(fig)
 
 
 ################################# SENTIMENT ANALYSIS PER USER PER FILES  ##############################
@@ -899,7 +907,7 @@ with tab2:
         return df_sentiment_per_user
 
     # Main Streamlit app
-    st.title("Sentiment Analysis per user with VADER for Bahasa Indonesia")
+    st.title("Sentiment Analysis per user")
 
     # Folder path containing the JSON files
     folder_path = "twitkeys"
@@ -954,6 +962,7 @@ with tab2:
     from streamlit_folium import folium_static, st_folium
     from geopy.geocoders import Nominatim
     from geopy.exc import GeocoderUnavailable
+    import os
     
     
     # Create a geolocator object
@@ -969,6 +978,8 @@ with tab2:
         except GeocoderUnavailable:
             st.warning(f"Geocoding service is unavailable for location: {location}")
         return None, None
+    
+    
 
     # Get the file paths of all JSON files in the "twitkeys" folder
     file_paths = glob.glob('twitkeys/*.json')
@@ -981,6 +992,9 @@ with tab2:
 
     # Allow users to select multiple files using a multiselect widget
     selected_files = st.multiselect("Select JSON Files", file_paths, default=default_files)
+
+    for file_path in selected_files:
+        file_name = os.path.splitext(os.path.basename(file_path))[0]  # Extract the filename without extension
 
     # Define variables to store the min/max latitude and longitude
     min_latitude = float('inf')
@@ -1030,7 +1044,7 @@ with tab2:
             folium.Marker([latitude, longitude], popup=popup, tooltip=user_name).add_to(m)
 
     # Display the map for the current file
-    st.header(f"User Map: {file_path}")
+    st.header(f"User Map in The Conversation on {file_name}")
     st_folium(m, width=1500, height=600)
 
 #################################################################
